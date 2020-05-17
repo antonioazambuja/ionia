@@ -37,7 +37,7 @@ func (req *RequestBuilder) WithQueries(keys []string, values []string) *RequestB
 func (req *RequestBuilder) Build() (*http.Request, error) {
 	newRequest, errNewRequest := http.NewRequest("GET", os.Getenv("ENDPOINT_REGION")+req.endpoint+req.pathParam, nil)
 	if errNewRequest != nil {
-		logOperation := log.New(os.Stdout, "Build - HTTP Request: ", log.Ldate|log.Lmicroseconds|log.Lshortfile)
+		logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
 		logOperation.Print(errNewRequest)
 		return nil, errNewRequest
 	}

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"os"
 
 	svc_v1 "github.com/antonioazambuja/ionia/services/api/v1"
 	"github.com/gorilla/mux"
@@ -15,9 +16,8 @@ func GetByName(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	summoner, err := svc_v1.GetByName(params["name"])
 	if err != nil {
-		log.Fatal("Error handler...")
-		panic(err)
-		// json.NewEncoder(w).Encode(rsc_v1.Summoner{})
+		logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
+		logOperation.Print(err)
 	}
 	json.NewEncoder(w).Encode(summoner)
 }

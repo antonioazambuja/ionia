@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -60,14 +61,14 @@ func (builder *SummonerBuilder) Build() (Summoner, error) {
 	if builder.summonerInfo {
 		requestSummoner, errorRequestSummoner := NewRequestBuilder().TypeBuilder("summoner").WithPathParam(builder.summonerName).Build()
 		if errorRequestSummoner != nil {
-			// log.Fatal("Error build request...")
-			panic(errorRequestSummoner)
-			// return Summoner{}, errorRequestSummoner
+			logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
+			logOperation.Print(errorRequestSummoner)
+			return Summoner{}, errorRequestSummoner
 		}
 		responseSummoner, errResponseSummoner := client.Do(requestSummoner)
 		if errResponseSummoner != nil && responseSummoner.StatusCode != 200 {
-			log.Fatal("Error build request...")
-			panic(errResponseSummoner)
+			logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
+			logOperation.Print(errResponseSummoner)
 		}
 		defer responseSummoner.Body.Close()
 		json.NewDecoder(responseSummoner.Body).Decode(&summonerDTO)
@@ -76,14 +77,14 @@ func (builder *SummonerBuilder) Build() (Summoner, error) {
 	if builder.leagueInfo {
 		requestLeague, errorRequestLeague := NewRequestBuilder().TypeBuilder("league").WithPathParam(summonerDTO.ID).Build()
 		if errorRequestLeague != nil {
-			log.Fatal("Error build request...")
-			panic(errorRequestLeague)
-			// return Summoner{}, errorRequestLeague
+			logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
+			logOperation.Print(errorRequestLeague)
+			return Summoner{}, errorRequestLeague
 		}
 		responseLeague, errResponseLeague := client.Do(requestLeague)
 		if errResponseLeague != nil && responseLeague.StatusCode != 200 {
-			log.Fatal("Error build request...")
-			panic(errResponseLeague)
+			logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
+			logOperation.Print(errResponseLeague)
 		}
 		defer responseLeague.Body.Close()
 		json.NewDecoder(responseLeague.Body).Decode(&leagueInfo)
