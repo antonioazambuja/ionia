@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"log"
 	"net/http"
 	"os"
 )
@@ -8,31 +9,37 @@ import (
 const summonerV4 string = "/lol/summoner/v4/summoners/by-name/"
 const leagueV4 string = "/lol/league/v4/entries/by-summoner/"
 
+// NewRequestBuilder - initialize SummonerBuilder
 func NewRequestBuilder() *RequestBuilder {
 	return &RequestBuilder{}
 }
 
+// RequestBuilder - builder request
 type RequestBuilder struct {
 	pathParam, endpoint string
 	keys, values        []string
 }
 
-func (req *RequestBuilder) SetPathParam(pathParam string) *RequestBuilder {
+// WithPathParam - add path parameter in request
+func (req *RequestBuilder) WithPathParam(pathParam string) *RequestBuilder {
 	req.pathParam = pathParam
 	return req
 }
 
-func (req *RequestBuilder) SetQueries(keys []string, values []string) *RequestBuilder {
+// WithQueries - add queries in request
+func (req *RequestBuilder) WithQueries(keys []string, values []string) *RequestBuilder {
 	req.keys = keys
 	req.values = values
 	return req
 }
 
+// Build - create request with API_KEY and HEADER
 func (req *RequestBuilder) Build() (*http.Request, error) {
 	newRequest, errNewRequest := http.NewRequest("GET", os.Getenv("ENDPOINT_REGION")+req.endpoint+req.pathParam, nil)
 	if errNewRequest != nil {
-		panic(errNewRequest)
-		// return nil, errNewRequest
+		logOperation := log.New(os.Stdout, "Build - HTTP Request: ", log.Ldate|log.Lmicroseconds|log.Lshortfile)
+		logOperation.Print(errNewRequest)
+		return nil, errNewRequest
 	}
 	newRequest.Header.Set(os.Getenv("HEADER_API_KEY"), os.Getenv("API_KEY"))
 	// apply queries keys and values in request
@@ -40,7 +47,8 @@ func (req *RequestBuilder) Build() (*http.Request, error) {
 	return newRequest, nil
 }
 
-func (req *RequestBuilder) GetBuilder(requestType string) *RequestBuilder {
+// TypeBuilder - set type of builder
+func (req *RequestBuilder) TypeBuilder(requestType string) *RequestBuilder {
 	switch requestType {
 	case "summoner":
 		req.endpoint = summonerV4

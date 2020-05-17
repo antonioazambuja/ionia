@@ -20,48 +20,45 @@ type SummonerDTO struct {
 
 // Summoner - summoner for API
 type Summoner struct {
-	SummonerName  string           `json:"summonerName,omitempty"`
-	SummonerLevel int              `json:"summonerLevel,omitempty"`
-	LeagueInfo    []LeagueEntryDTO `json:"LeagueInfo,omitempty"`
-	// CurrentTier   string `json:"currentTier,omitempty"`
-	// CurrentRank   string `json:"currentRank,omitempty"`
-	// Wins          int    `json:"wins,omitempty"`
-	// Losses        int    `json:"losses,omitempty"`
-	// QueueType     string `json:"queueType,omitempty"`
-	// LeaguePoints  int    `json:"leaguePoints,omitempty"`
+	SummonerName  string       `json:"summonerName,omitempty"`
+	SummonerLevel int          `json:"summonerLevel,omitempty"`
+	LeagueInfo    []LeagueInfo `json:"leagueInfo,omitempty"`
 }
 
+// SummonerBuilder - builder summoner
 type SummonerBuilder struct {
 	summonerName             string
 	summonerInfo, leagueInfo bool
 }
 
+// NewSummonerBuilder - initialize SummonerBuilder
 func NewSummonerBuilder(summonerName string) *SummonerBuilder {
 	return &SummonerBuilder{
 		summonerName: summonerName,
 	}
 }
 
-// func (builder *SummonerBuilder) SetSummonerInfo(summonerDTO *SummonerDTO) *SummonerBuilder {
+// WithSummonerInfo - add SummonerDTO data in summoner
 func (builder *SummonerBuilder) WithSummonerInfo() *SummonerBuilder {
 	builder.summonerInfo = true
 	// builder.summonerLevel = summonerDTO.SummonerLevel
 	return builder
 }
 
-// func (builder *SummonerBuilder) setLeagueInfo(leagueEntryDTO *LeagueEntryDTO) *SummonerBuilder {
+// WithLeagueInfo - add LeagueEntryDTO data in summoner
 func (builder *SummonerBuilder) WithLeagueInfo() *SummonerBuilder {
 	builder.leagueInfo = true
 	return builder
 }
 
+// Build - create and get data in Riot API
 func (builder *SummonerBuilder) Build() (Summoner, error) {
 	client := &http.Client{
 		Timeout: time.Duration(300 * time.Second),
 	}
 	var summonerDTO SummonerDTO
 	if builder.summonerInfo {
-		requestSummoner, errorRequestSummoner := NewRequestBuilder().GetBuilder("summoner").SetPathParam(builder.summonerName).Build()
+		requestSummoner, errorRequestSummoner := NewRequestBuilder().TypeBuilder("summoner").WithPathParam(builder.summonerName).Build()
 		if errorRequestSummoner != nil {
 			// log.Fatal("Error build request...")
 			panic(errorRequestSummoner)
@@ -75,9 +72,9 @@ func (builder *SummonerBuilder) Build() (Summoner, error) {
 		defer responseSummoner.Body.Close()
 		json.NewDecoder(responseSummoner.Body).Decode(&summonerDTO)
 	}
-	var leagueEntryDTO []LeagueEntryDTO
+	var leagueInfo []LeagueInfo
 	if builder.leagueInfo {
-		requestLeague, errorRequestLeague := NewRequestBuilder().GetBuilder("league").SetPathParam(summonerDTO.ID).Build()
+		requestLeague, errorRequestLeague := NewRequestBuilder().TypeBuilder("league").WithPathParam(summonerDTO.ID).Build()
 		if errorRequestLeague != nil {
 			log.Fatal("Error build request...")
 			panic(errorRequestLeague)
@@ -89,17 +86,11 @@ func (builder *SummonerBuilder) Build() (Summoner, error) {
 			panic(errResponseLeague)
 		}
 		defer responseLeague.Body.Close()
-		json.NewDecoder(responseLeague.Body).Decode(&leagueEntryDTO)
+		json.NewDecoder(responseLeague.Body).Decode(&leagueInfo)
 	}
 	return Summoner{
 		SummonerName:  summonerDTO.Name,
 		SummonerLevel: summonerDTO.SummonerLevel,
-		LeagueInfo:    leagueEntryDTO,
-		// CurrentRank:   leagueEntryDTO[0].Rank,
-		// CurrentTier:   leagueEntryDTO[0].Tier,
-		// LeaguePoints:  leagueEntryDTO[0].LeaguePoints,
-		// Wins:          leagueEntryDTO[0].Wins,
-		// Losses:        leagueEntryDTO[0].Losses,
-		// QueueType:     leagueEntryDTO[0].QueueType,
+		LeagueInfo:    leagueInfo,
 	}, nil
 }
