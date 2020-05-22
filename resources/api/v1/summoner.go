@@ -78,7 +78,7 @@ func (builder *SummonerBuilder) Build() (Summoner, error) {
 		defer responseSummoner.Body.Close()
 		json.NewDecoder(responseSummoner.Body).Decode(&summonerDTO)
 	}
-	var leagueInfo []LeagueInfo
+	var leagueInfos []LeagueInfo
 	if builder.leagueInfo {
 		requestLeague, errorRequestLeague := NewRequestBuilder().TypeBuilder("league").WithPathParam(summonerDTO.ID).Build()
 		if errorRequestLeague != nil {
@@ -92,7 +92,25 @@ func (builder *SummonerBuilder) Build() (Summoner, error) {
 			logOperation.Print(errResponseLeague)
 		}
 		defer responseLeague.Body.Close()
-		json.NewDecoder(responseLeague.Body).Decode(&leagueInfo)
+		var leagueEntryDTO []LeagueEntryDTO
+		json.NewDecoder(responseLeague.Body).Decode(&leagueEntryDTO)
+		for _, info := range leagueEntryDTO {
+			leagueInfo := LeagueInfo{
+				LeagueID: info.LeagueID,
+				QueueType: info.QueueType,
+				Tier: info.Tier,
+				Rank: info.Rank,
+				LeaguePoints: info.LeaguePoints,
+				Wins: info.Wins,
+				Losses: info.Losses,
+				Veteran: info.Veteran,
+				Inactive: info.Inactive,
+				FreshBlood: info.FreshBlood,
+				HotStreak: info.HotStreak,
+				MiniSeriesDTO: info.MiniSeriesDTO,
+			}
+			leagueInfos = append(leagueInfos, leagueInfo)
+		}
 	}
 	return Summoner{
 		SummonerName:  summonerDTO.Name,
@@ -102,6 +120,6 @@ func (builder *SummonerBuilder) Build() (Summoner, error) {
 		Puuid:         summonerDTO.Puuid,
 		ProfileIconID: summonerDTO.ProfileIconID,
 		RevisionDate:  summonerDTO.RevisionDate,
-		LeagueInfo:    leagueInfo,
+		LeagueInfo:    leagueInfos,
 	}, nil
 }
