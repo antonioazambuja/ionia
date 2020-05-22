@@ -10,25 +10,25 @@ import (
 
 // SummonerDTO - summoner profile response
 type SummonerDTO struct {
-	ID            string `json:"id,omitempty"`
-	AccountID     string `json:"accountId,omitempty"`
-	Puuid         string `json:"puuid,omitempty"`
-	Name          string `json:"name,omitempty"`
-	ProfileIconID int    `json:"profileIconId,omitempty"`
-	RevisionDate  int    `json:"revisionDate,omitempty"`
-	SummonerLevel int    `json:"summonerLevel,omitempty"`
+	ID            string `json:"id"`
+	AccountID     string `json:"accountId"`
+	Puuid         string `json:"puuid"`
+	Name          string `json:"name"`
+	ProfileIconID int    `json:"profileIconId"`
+	RevisionDate  int    `json:"revisionDate"`
+	SummonerLevel int    `json:"summonerLevel"`
 }
 
 // Summoner - summoner for API
 type Summoner struct {
-	SummonerName  string       `json:"summonerName,omitempty"`
-	SummonerLevel int          `json:"summonerLevel,omitempty"`
-	SummonerID    string       `json:"id,omitempty"`
-	AccountID     string       `json:"accountId,omitempty"`
-	Puuid         string       `json:"puuid,omitempty"`
-	ProfileIconID int          `json:"profileIconId,omitempty"`
-	RevisionDate  int          `json:"revisionDate,omitempty"`
-	LeagueInfo    []LeagueInfo `json:"leagueInfo,omitempty"`
+	SummonerName  string       `json:"summonerName"`
+	SummonerLevel int          `json:"summonerLevel"`
+	SummonerID    string       `json:"id"`
+	AccountID     string       `json:"accountId"`
+	Puuid         string       `json:"puuid"`
+	ProfileIconID int          `json:"profileIconId"`
+	RevisionDate  int          `json:"revisionDate"`
+	LeagueInfo    []LeagueInfo `json:"leagueInfo"`
 }
 
 // SummonerBuilder - builder summoner
