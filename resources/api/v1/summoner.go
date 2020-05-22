@@ -23,6 +23,11 @@ type SummonerDTO struct {
 type Summoner struct {
 	SummonerName  string       `json:"summonerName,omitempty"`
 	SummonerLevel int          `json:"summonerLevel,omitempty"`
+	SummonerID    string       `json:"id,omitempty"`
+	AccountID     string       `json:"accountId,omitempty"`
+	Puuid         string       `json:"puuid,omitempty"`
+	ProfileIconID int          `json:"profileIconId,omitempty"`
+	RevisionDate  int          `json:"revisionDate,omitempty"`
 	LeagueInfo    []LeagueInfo `json:"leagueInfo,omitempty"`
 }
 
@@ -66,7 +71,7 @@ func (builder *SummonerBuilder) Build() (Summoner, error) {
 			return Summoner{}, errorRequestSummoner
 		}
 		responseSummoner, errResponseSummoner := client.Do(requestSummoner)
-		if errResponseSummoner != nil && responseSummoner.StatusCode != 200 {
+		if errResponseSummoner != nil || responseSummoner.StatusCode != 200 {
 			logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
 			logOperation.Print(errResponseSummoner)
 		}
@@ -82,7 +87,7 @@ func (builder *SummonerBuilder) Build() (Summoner, error) {
 			return Summoner{}, errorRequestLeague
 		}
 		responseLeague, errResponseLeague := client.Do(requestLeague)
-		if errResponseLeague != nil && responseLeague.StatusCode != 200 {
+		if errResponseLeague != nil || responseLeague.StatusCode != 200 {
 			logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
 			logOperation.Print(errResponseLeague)
 		}
@@ -92,6 +97,11 @@ func (builder *SummonerBuilder) Build() (Summoner, error) {
 	return Summoner{
 		SummonerName:  summonerDTO.Name,
 		SummonerLevel: summonerDTO.SummonerLevel,
+		SummonerID:    summonerDTO.ID,
+		AccountID:     summonerDTO.AccountID,
+		Puuid:         summonerDTO.Puuid,
+		ProfileIconID: summonerDTO.ProfileIconID,
+		RevisionDate:  summonerDTO.RevisionDate,
 		LeagueInfo:    leagueInfo,
 	}, nil
 }
