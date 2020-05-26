@@ -8,6 +8,7 @@ import (
 
 const summonerV4 string = "/lol/summoner/v4/summoners/by-name/"
 const leagueV4 string = "/lol/league/v4/entries/by-summoner/"
+const matchesV4 string = "/lol/match/v4/matchlists/by-account/"
 
 // NewRequestBuilder - initialize SummonerBuilder
 func NewRequestBuilder() *RequestBuilder {
@@ -42,8 +43,14 @@ func (req *RequestBuilder) Build() (*http.Request, error) {
 		return nil, errNewRequest
 	}
 	newRequest.Header.Set(os.Getenv("HEADER_API_KEY"), os.Getenv("API_KEY"))
-	// apply queries keys and values in request
-	// if len(req.keys) > 0
+	if len(req.keys) > 0 && len(req.values) > 0 {
+		query := newRequest.URL.Query()
+		if len(req.keys) == len(req.values) {
+			for i := range req.keys {
+				query.Add(req.keys[i], req.values[i])
+			}
+		}
+	}
 	return newRequest, nil
 }
 
@@ -54,6 +61,8 @@ func (req *RequestBuilder) TypeBuilder(requestType string) *RequestBuilder {
 		req.endpoint = summonerV4
 	case "league":
 		req.endpoint = leagueV4
+	case "matches":
+		req.endpoint = matchesV4
 	default:
 		req.endpoint = ""
 	}

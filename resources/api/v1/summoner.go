@@ -21,20 +21,23 @@ type SummonerDTO struct {
 
 // Summoner - summoner for API
 type Summoner struct {
-	SummonerName  string       `json:"summonerName"`
-	SummonerLevel int          `json:"summonerLevel"`
-	SummonerID    string       `json:"id"`
-	AccountID     string       `json:"accountId"`
-	Puuid         string       `json:"puuid"`
-	ProfileIconID int          `json:"profileIconId"`
-	RevisionDate  int          `json:"revisionDate"`
-	LeagueInfo    []LeagueInfo `json:"leagueInfo"`
+	SummonerName  string              `json:"summonerName"`
+	SummonerLevel int                 `json:"summonerLevel"`
+	SummonerID    string              `json:"id"`
+	AccountID     string              `json:"accountId"`
+	Puuid         string              `json:"puuid"`
+	ProfileIconID int                 `json:"profileIconId"`
+	RevisionDate  int                 `json:"revisionDate"`
+	LeagueInfo    []LeagueInfo        `json:"leagueInfo"`
+	TotalGames    int                 `json:"totalGames"`
+	MatchesInfo   []MatchReferenceDto `json:"matchesInfo"`
 }
 
 // SummonerBuilder - builder summoner
 type SummonerBuilder struct {
-	summonerName             string
-	summonerInfo, leagueInfo bool
+	summonerName                          string
+	summonerInfo, leagueInfo, matchesInfo bool
+	keys, values                          []string
 }
 
 // NewSummonerBuilder - initialize SummonerBuilder
@@ -54,6 +57,12 @@ func (builder *SummonerBuilder) WithSummonerInfo() *SummonerBuilder {
 // WithLeagueInfo - add LeagueEntryDTO data in summoner
 func (builder *SummonerBuilder) WithLeagueInfo() *SummonerBuilder {
 	builder.leagueInfo = true
+	return builder
+}
+
+// WithMatchesInfo - add MatchReferenceDto data in summoner
+func (builder *SummonerBuilder) WithMatchesInfo() *SummonerBuilder {
+	builder.matchesInfo = true
 	return builder
 }
 
@@ -96,21 +105,37 @@ func (builder *SummonerBuilder) Build() (Summoner, error) {
 		json.NewDecoder(responseLeague.Body).Decode(&leagueEntryDTO)
 		for _, info := range leagueEntryDTO {
 			leagueInfo := LeagueInfo{
-				LeagueID: info.LeagueID,
-				QueueType: info.QueueType,
-				Tier: info.Tier,
-				Rank: info.Rank,
-				LeaguePoints: info.LeaguePoints,
-				Wins: info.Wins,
-				Losses: info.Losses,
-				Veteran: info.Veteran,
-				Inactive: info.Inactive,
-				FreshBlood: info.FreshBlood,
-				HotStreak: info.HotStreak,
+				LeagueID:      info.LeagueID,
+				QueueType:     info.QueueType,
+				Tier:          info.Tier,
+				Rank:          info.Rank,
+				LeaguePoints:  info.LeaguePoints,
+				Wins:          info.Wins,
+				Losses:        info.Losses,
+				Veteran:       info.Veteran,
+				Inactive:      info.Inactive,
+				FreshBlood:    info.FreshBlood,
+				HotStreak:     info.HotStreak,
 				MiniSeriesDTO: info.MiniSeriesDTO,
 			}
 			leagueInfos = append(leagueInfos, leagueInfo)
 		}
+	}
+	var matchlistDto MatchlistDto
+	if builder.matchesInfo {
+		requestMatches, errorRequestMatches := NewRequestBuilder().TypeBuilder("matches").WithPathParam(summonerDTO.AccountID).WithQueries([]string{"beginIndex", "endIndex"}, []string{"0", "15"}).Build()
+		if errorRequestMatches != nil {
+			logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
+			logOperation.Print(errorRequestMatches)
+			return Summoner{}, errorRequestMatches
+		}
+		responseMatches, errResponseMatches := client.Do(requestMatches)
+		if errResponseMatches != nil || responseMatches.StatusCode != 200 {
+			logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
+			logOperation.Print(errResponseMatches)
+		}
+		defer responseMatches.Body.Close()
+		json.NewDecoder(responseMatches.Body).Decode(&matchlistDto)
 	}
 	return Summoner{
 		SummonerName:  summonerDTO.Name,
@@ -121,5 +146,7 @@ func (builder *SummonerBuilder) Build() (Summoner, error) {
 		ProfileIconID: summonerDTO.ProfileIconID,
 		RevisionDate:  summonerDTO.RevisionDate,
 		LeagueInfo:    leagueInfos,
+		TotalGames:    matchlistDto.TotalGames,
+		MatchesInfo:   matchlistDto.Matches,
 	}, nil
 }
