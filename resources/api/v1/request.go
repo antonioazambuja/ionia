@@ -2,7 +2,6 @@ package v1
 
 import (
 	"log"
-	"fmt"
 	"net/http"
 	"os"
 	"time"
@@ -50,10 +49,6 @@ func (req *RequestBuilder) Build() *RequestBuilder {
 		return nil
 	}
 	newRequest.Header.Set(os.Getenv("HEADER_API_KEY"), os.Getenv("API_KEY"))
-	fmt.Println(req.keys)
-	fmt.Println(len(req.keys))
-	fmt.Println(req.values)
-	fmt.Println(len(req.values))
 	if len(req.keys) > 0 && len(req.values) > 0 {
 		query := newRequest.URL.Query()
 		if len(req.keys) == len(req.values) {
@@ -63,7 +58,6 @@ func (req *RequestBuilder) Build() *RequestBuilder {
 		}
 		newRequest.URL.RawQuery = query.Encode()
 	}
-	fmt.Println(newRequest.URL)
 	req.requestBuilded = newRequest
 	return req
 }
