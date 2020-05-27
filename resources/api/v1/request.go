@@ -2,8 +2,10 @@ package v1
 
 import (
 	"log"
+	"fmt"
 	"net/http"
 	"os"
+	"time"
 )
 
 const summonerV4 string = "/lol/summoner/v4/summoners/by-name/"
@@ -19,6 +21,7 @@ func NewRequestBuilder() *RequestBuilder {
 type RequestBuilder struct {
 	pathParam, endpoint string
 	keys, values        []string
+	requestBuilded      *http.Request
 }
 
 // WithPathParam - add path parameter in request
@@ -29,20 +32,28 @@ func (req *RequestBuilder) WithPathParam(pathParam string) *RequestBuilder {
 
 // WithQueries - add queries in request
 func (req *RequestBuilder) WithQueries(keys []string, values []string) *RequestBuilder {
-	req.keys = keys
-	req.values = values
+	for _, item := range keys {
+		req.keys = append(req.keys, item)
+	}
+	for _, item := range values {
+		req.values = append(req.values, item)
+	}
 	return req
 }
 
 // Build - create request with API_KEY and HEADER
-func (req *RequestBuilder) Build() (*http.Request, error) {
+func (req *RequestBuilder) Build() *RequestBuilder {
 	newRequest, errNewRequest := http.NewRequest("GET", os.Getenv("ENDPOINT_REGION")+req.endpoint+req.pathParam, nil)
 	if errNewRequest != nil {
 		logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
 		logOperation.Print(errNewRequest)
-		return nil, errNewRequest
+		return nil
 	}
 	newRequest.Header.Set(os.Getenv("HEADER_API_KEY"), os.Getenv("API_KEY"))
+	fmt.Println(req.keys)
+	fmt.Println(len(req.keys))
+	fmt.Println(req.values)
+	fmt.Println(len(req.values))
 	if len(req.keys) > 0 && len(req.values) > 0 {
 		query := newRequest.URL.Query()
 		if len(req.keys) == len(req.values) {
@@ -50,8 +61,25 @@ func (req *RequestBuilder) Build() (*http.Request, error) {
 				query.Add(req.keys[i], req.values[i])
 			}
 		}
+		newRequest.URL.RawQuery = query.Encode()
 	}
-	return newRequest, nil
+	fmt.Println(newRequest.URL)
+	req.requestBuilded = newRequest
+	return req
+}
+
+// Run - perform request builded
+func (req *RequestBuilder) Run() (*http.Response, error) {
+	client := &http.Client{
+		Timeout: time.Duration(300 * time.Second),
+	}
+	responseLeague, errResponseLeague := client.Do(req.requestBuilded)
+	if errResponseLeague != nil || responseLeague.StatusCode != 200 {
+		logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
+		logOperation.Print(errResponseLeague)
+		return nil, errResponseLeague
+	}
+	return responseLeague, nil
 }
 
 // TypeBuilder - set type of builder
