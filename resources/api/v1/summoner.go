@@ -3,9 +3,7 @@ package v1
 import (
 	"encoding/json"
 	"log"
-	"net/http"
 	"os"
-	"time"
 )
 
 // SummonerDTO - summoner profile response
@@ -68,37 +66,24 @@ func (builder *SummonerBuilder) WithMatchesInfo() *SummonerBuilder {
 
 // Build - create and get data in Riot API
 func (builder *SummonerBuilder) Build() (Summoner, error) {
-	client := &http.Client{
-		Timeout: time.Duration(300 * time.Second),
-	}
 	var summonerDTO SummonerDTO
 	if builder.summonerInfo {
-		requestSummoner, errorRequestSummoner := NewRequestBuilder().TypeBuilder("summoner").WithPathParam(builder.summonerName).Build()
-		if errorRequestSummoner != nil {
+		responseSummoner, errorResponseSummoner := NewRequestBuilder().TypeBuilder("summoner").WithPathParam(builder.summonerName).Build().Run()
+		if errorResponseSummoner != nil {
 			logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
-			logOperation.Print(errorRequestSummoner)
-			return Summoner{}, errorRequestSummoner
-		}
-		responseSummoner, errResponseSummoner := client.Do(requestSummoner)
-		if errResponseSummoner != nil || responseSummoner.StatusCode != 200 {
-			logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
-			logOperation.Print(errResponseSummoner)
+			logOperation.Print(errorResponseSummoner)
+			return Summoner{}, errorResponseSummoner
 		}
 		defer responseSummoner.Body.Close()
 		json.NewDecoder(responseSummoner.Body).Decode(&summonerDTO)
 	}
 	var leagueInfos []LeagueInfo
 	if builder.leagueInfo {
-		requestLeague, errorRequestLeague := NewRequestBuilder().TypeBuilder("league").WithPathParam(summonerDTO.ID).Build()
-		if errorRequestLeague != nil {
+		responseLeague, errorResponseLeague := NewRequestBuilder().TypeBuilder("league").WithPathParam(summonerDTO.ID).Build().Run()
+		if errorResponseLeague != nil {
 			logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
-			logOperation.Print(errorRequestLeague)
-			return Summoner{}, errorRequestLeague
-		}
-		responseLeague, errResponseLeague := client.Do(requestLeague)
-		if errResponseLeague != nil || responseLeague.StatusCode != 200 {
-			logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
-			logOperation.Print(errResponseLeague)
+			logOperation.Print(errorResponseLeague)
+			return Summoner{}, errorResponseLeague
 		}
 		defer responseLeague.Body.Close()
 		var leagueEntryDTO []LeagueEntryDTO
@@ -123,16 +108,11 @@ func (builder *SummonerBuilder) Build() (Summoner, error) {
 	}
 	var matchlistDto MatchlistDto
 	if builder.matchesInfo {
-		requestMatches, errorRequestMatches := NewRequestBuilder().TypeBuilder("matches").WithPathParam(summonerDTO.AccountID).WithQueries([]string{"beginIndex", "endIndex"}, []string{"0", "15"}).Build()
-		if errorRequestMatches != nil {
+		responseMatches, errorResponseMatches := NewRequestBuilder().TypeBuilder("matches").WithPathParam(summonerDTO.AccountID).WithQueries([]string{"beginIndex", "endIndex"}, []string{"0", "15"}).Build().Run()
+		if errorResponseMatches != nil {
 			logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
-			logOperation.Print(errorRequestMatches)
-			return Summoner{}, errorRequestMatches
-		}
-		responseMatches, errResponseMatches := client.Do(requestMatches)
-		if errResponseMatches != nil || responseMatches.StatusCode != 200 {
-			logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
-			logOperation.Print(errResponseMatches)
+			logOperation.Print(errorResponseMatches)
+			return Summoner{}, errorResponseMatches
 		}
 		defer responseMatches.Body.Close()
 		json.NewDecoder(responseMatches.Body).Decode(&matchlistDto)
