@@ -71,7 +71,7 @@ func (builder *SummonerBuilder) Build() (Summoner, error) {
 		responseSummoner, errorResponseSummoner := NewRequestBuilder().TypeBuilder("summoner").WithPathParam(builder.summonerName).Build().Run()
 		if errorResponseSummoner != nil {
 			logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
-			logOperation.Print(errorResponseSummoner)
+			logOperation.Print("Failed build summoner, get summoners info")
 			return Summoner{}, errorResponseSummoner
 		}
 		defer responseSummoner.Body.Close()
@@ -82,7 +82,7 @@ func (builder *SummonerBuilder) Build() (Summoner, error) {
 		responseLeague, errorResponseLeague := NewRequestBuilder().TypeBuilder("league").WithPathParam(summonerDTO.ID).Build().Run()
 		if errorResponseLeague != nil {
 			logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
-			logOperation.Print(errorResponseLeague)
+			logOperation.Print("Failed build summoner, get league info")
 			return Summoner{}, errorResponseLeague
 		}
 		defer responseLeague.Body.Close()
@@ -111,7 +111,7 @@ func (builder *SummonerBuilder) Build() (Summoner, error) {
 		responseMatches, errorResponseMatches := NewRequestBuilder().TypeBuilder("matches").WithPathParam(summonerDTO.AccountID).WithQueries([]string{"beginIndex", "endIndex"}, []string{"0", "15"}).Build().Run()
 		if errorResponseMatches != nil {
 			logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
-			logOperation.Print(errorResponseMatches)
+			logOperation.Print("Failed build summoner, get matches info")
 			return Summoner{}, errorResponseMatches
 		}
 		defer responseMatches.Body.Close()

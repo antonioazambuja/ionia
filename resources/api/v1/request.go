@@ -46,7 +46,7 @@ func (req *RequestBuilder) Build() *RequestBuilder {
 	newRequest, errNewRequest := http.NewRequest("GET", os.Getenv("ENDPOINT_REGION")+req.endpoint+req.pathParam, nil)
 	if errNewRequest != nil {
 		logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
-		logOperation.Print(errNewRequest)
+		logOperation.Print("Failed build request")
 		return nil
 	}
 	newRequest.Header.Set(os.Getenv("HEADER_API_KEY"), os.Getenv("API_KEY"))
@@ -76,7 +76,7 @@ func (req *RequestBuilder) Run() (*http.Response, error) {
 	responseLeague, errResponseLeague := client.Do(req.requestBuilded)
 	if errResponseLeague != nil || responseLeague.StatusCode != 200 {
 		logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
-		logOperation.Print(errResponseLeague)
+		logOperation.Print("Failed perform request")
 		return nil, errResponseLeague
 	}
 	return responseLeague, nil

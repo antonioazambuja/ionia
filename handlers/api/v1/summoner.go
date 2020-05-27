@@ -17,7 +17,7 @@ func GetByName(w http.ResponseWriter, r *http.Request) {
 	summoner, err := svc_v1.GetByName(params["name"])
 	if err != nil {
 		logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
-		logOperation.Print(err)
+		logOperation.Print("Failed get summoner in service GetByName")
 	}
 	json.NewEncoder(w).Encode(summoner)
 }
