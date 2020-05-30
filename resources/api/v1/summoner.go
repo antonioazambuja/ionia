@@ -8,27 +8,27 @@ import (
 
 // SummonerDTO - summoner profile response
 type SummonerDTO struct {
-	ID            string `json:"id"`
-	AccountID     string `json:"accountId"`
-	Puuid         string `json:"puuid"`
-	Name          string `json:"name"`
-	ProfileIconID int    `json:"profileIconId"`
-	RevisionDate  int    `json:"revisionDate"`
-	SummonerLevel int    `json:"summonerLevel"`
+	ID            string `json:"id,omitempty"`
+	AccountID     string `json:"accountId,omitempty"`
+	Puuid         string `json:"puuid,omitempty"`
+	Name          string `json:"name,omitempty"`
+	ProfileIconID int    `json:"profileIconId,omitempty"`
+	RevisionDate  int    `json:"revisionDate,omitempty"`
+	SummonerLevel int    `json:"summonerLevel,omitempty"`
 }
 
 // Summoner - summoner for API
 type Summoner struct {
-	SummonerName  string              `json:"summonerName"`
-	SummonerLevel int                 `json:"summonerLevel"`
-	SummonerID    string              `json:"id"`
-	AccountID     string              `json:"accountId"`
-	Puuid         string              `json:"puuid"`
-	ProfileIconID int                 `json:"profileIconId"`
-	RevisionDate  int                 `json:"revisionDate"`
-	LeagueInfo    []LeagueInfo        `json:"leagueInfo"`
-	TotalGames    int                 `json:"totalGames"`
-	MatchesInfo   []MatchReferenceDto `json:"matchesInfo"`
+	SummonerName  string              `json:"summonerName,omitempty"`
+	SummonerLevel int                 `json:"summonerLevel,omitempty"`
+	SummonerID    string              `json:"id,omitempty"`
+	AccountID     string              `json:"accountId,omitempty"`
+	Puuid         string              `json:"puuid,omitempty"`
+	ProfileIconID int                 `json:"profileIconId,omitempty"`
+	RevisionDate  int                 `json:"revisionDate,omitempty"`
+	LeagueInfo    []LeagueInfo        `json:"leagueInfo,omitempty"`
+	TotalGames    int                 `json:"totalGames,omitempty"`
+	MatchesInfo   []MatchReferenceDto `json:"matchesInfo,omitempty"`
 }
 
 // SummonerBuilder - builder summoner
@@ -66,16 +66,24 @@ func (builder *SummonerBuilder) WithMatchesInfo() *SummonerBuilder {
 
 // Build - create and get data in Riot API
 func (builder *SummonerBuilder) Build() (Summoner, error) {
+	var summoner Summoner
 	var summonerDTO SummonerDTO
+	responseSummoner, errorResponseSummoner := NewRequestBuilder().TypeBuilder("summoner").WithPathParam(builder.summonerName).Build().Run()
+	if errorResponseSummoner != nil {
+		logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
+		logOperation.Print("Failed build summoner, get summoners info")
+		return Summoner{}, errorResponseSummoner
+	}
+	defer responseSummoner.Body.Close()
+	json.NewDecoder(responseSummoner.Body).Decode(&summonerDTO)
 	if builder.summonerInfo {
-		responseSummoner, errorResponseSummoner := NewRequestBuilder().TypeBuilder("summoner").WithPathParam(builder.summonerName).Build().Run()
-		if errorResponseSummoner != nil {
-			logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
-			logOperation.Print("Failed build summoner, get summoners info")
-			return Summoner{}, errorResponseSummoner
-		}
-		defer responseSummoner.Body.Close()
-		json.NewDecoder(responseSummoner.Body).Decode(&summonerDTO)
+		summoner.SummonerName = summonerDTO.Name
+		summoner.SummonerLevel = summonerDTO.SummonerLevel
+		summoner.SummonerID = summonerDTO.ID
+		summoner.AccountID = summonerDTO.AccountID
+		summoner.Puuid = summonerDTO.Puuid
+		summoner.ProfileIconID = summonerDTO.ProfileIconID
+		summoner.RevisionDate = summonerDTO.RevisionDate
 	}
 	var leagueInfos []LeagueInfo
 	if builder.leagueInfo {
@@ -105,6 +113,7 @@ func (builder *SummonerBuilder) Build() (Summoner, error) {
 			}
 			leagueInfos = append(leagueInfos, leagueInfo)
 		}
+		summoner.LeagueInfo = leagueInfos
 	}
 	var matchlistDto MatchlistDto
 	if builder.matchesInfo {
@@ -116,17 +125,8 @@ func (builder *SummonerBuilder) Build() (Summoner, error) {
 		}
 		defer responseMatches.Body.Close()
 		json.NewDecoder(responseMatches.Body).Decode(&matchlistDto)
+		summoner.MatchesInfo = matchlistDto.Matches
+		summoner.TotalGames = matchlistDto.TotalGames
 	}
-	return Summoner{
-		SummonerName:  summonerDTO.Name,
-		SummonerLevel: summonerDTO.SummonerLevel,
-		SummonerID:    summonerDTO.ID,
-		AccountID:     summonerDTO.AccountID,
-		Puuid:         summonerDTO.Puuid,
-		ProfileIconID: summonerDTO.ProfileIconID,
-		RevisionDate:  summonerDTO.RevisionDate,
-		LeagueInfo:    leagueInfos,
-		TotalGames:    matchlistDto.TotalGames,
-		MatchesInfo:   matchlistDto.Matches,
-	}, nil
+	return summoner, nil
 }
