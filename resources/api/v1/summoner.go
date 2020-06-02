@@ -33,100 +33,88 @@ type Summoner struct {
 
 // SummonerBuilder - builder summoner
 type SummonerBuilder struct {
-	summonerName                          string
-	summonerInfo, leagueInfo, matchesInfo bool
-	keys, values                          []string
+	summonerDTO SummonerDTO
+	summoner    Summoner
 }
 
 // NewSummonerBuilder - initialize SummonerBuilder
 func NewSummonerBuilder(summonerName string) *SummonerBuilder {
+	var summonerDTO SummonerDTO
+	responseSummoner, errorResponseSummoner := NewRequestBuilder().TypeBuilder("summoner").WithPathParam(summonerName).Build().Run()
+	if errorResponseSummoner != nil {
+		logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
+		logOperation.Print("Failed build summoner, get summoners info")
+		return &SummonerBuilder{}
+	}
+	defer responseSummoner.Body.Close()
+	json.NewDecoder(responseSummoner.Body).Decode(&summonerDTO)
 	return &SummonerBuilder{
-		summonerName: summonerName,
+		summonerDTO: summonerDTO,
 	}
 }
 
 // WithSummonerInfo - add SummonerDTO data in summoner
 func (builder *SummonerBuilder) WithSummonerInfo() *SummonerBuilder {
-	builder.summonerInfo = true
-	// builder.summonerLevel = summonerDTO.SummonerLevel
+	builder.summoner.SummonerName = builder.summonerDTO.Name
+	builder.summoner.SummonerLevel = builder.summonerDTO.SummonerLevel
+	builder.summoner.SummonerID = builder.summonerDTO.ID
+	builder.summoner.AccountID = builder.summonerDTO.AccountID
+	builder.summoner.Puuid = builder.summonerDTO.Puuid
+	builder.summoner.ProfileIconID = builder.summonerDTO.ProfileIconID
+	builder.summoner.RevisionDate = builder.summonerDTO.RevisionDate
 	return builder
 }
 
 // WithLeagueInfo - add LeagueEntryDTO data in summoner
 func (builder *SummonerBuilder) WithLeagueInfo() *SummonerBuilder {
-	builder.leagueInfo = true
+	var leagueInfos []LeagueInfo
+	responseLeague, errorResponseLeague := NewRequestBuilder().TypeBuilder("league").WithPathParam(builder.summonerDTO.ID).Build().Run()
+	if errorResponseLeague != nil {
+		logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
+		logOperation.Print("Failed build summoner, get league info")
+		return &SummonerBuilder{}
+	}
+	defer responseLeague.Body.Close()
+	var leagueEntryDTO []LeagueEntryDTO
+	json.NewDecoder(responseLeague.Body).Decode(&leagueEntryDTO)
+	for _, info := range leagueEntryDTO {
+		leagueInfo := LeagueInfo{
+			LeagueID:      info.LeagueID,
+			QueueType:     info.QueueType,
+			Tier:          info.Tier,
+			Rank:          info.Rank,
+			LeaguePoints:  info.LeaguePoints,
+			Wins:          info.Wins,
+			Losses:        info.Losses,
+			Veteran:       info.Veteran,
+			Inactive:      info.Inactive,
+			FreshBlood:    info.FreshBlood,
+			HotStreak:     info.HotStreak,
+			MiniSeriesDTO: info.MiniSeriesDTO,
+		}
+		leagueInfos = append(leagueInfos, leagueInfo)
+	}
+	builder.summoner.LeagueInfo = leagueInfos
 	return builder
 }
 
 // WithMatchesInfo - add MatchReferenceDto data in summoner
 func (builder *SummonerBuilder) WithMatchesInfo() *SummonerBuilder {
-	builder.matchesInfo = true
+	var matchlistDto MatchlistDto
+	responseMatches, errorResponseMatches := NewRequestBuilder().TypeBuilder("matches").WithPathParam(builder.summonerDTO.AccountID).WithQueries([]string{"beginIndex", "endIndex"}, []string{"0", "15"}).Build().Run()
+	if errorResponseMatches != nil {
+		logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
+		logOperation.Print("Failed build summoner, get matches info")
+		return &SummonerBuilder{}
+	}
+	defer responseMatches.Body.Close()
+	json.NewDecoder(responseMatches.Body).Decode(&matchlistDto)
+	builder.summoner.MatchesInfo = matchlistDto.Matches
+	builder.summoner.TotalGames = matchlistDto.TotalGames
 	return builder
 }
 
 // Build - create and get data in Riot API
 func (builder *SummonerBuilder) Build() (Summoner, error) {
-	var summoner Summoner
-	var summonerDTO SummonerDTO
-	responseSummoner, errorResponseSummoner := NewRequestBuilder().TypeBuilder("summoner").WithPathParam(builder.summonerName).Build().Run()
-	if errorResponseSummoner != nil {
-		logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
-		logOperation.Print("Failed build summoner, get summoners info")
-		return Summoner{}, errorResponseSummoner
-	}
-	defer responseSummoner.Body.Close()
-	json.NewDecoder(responseSummoner.Body).Decode(&summonerDTO)
-	if builder.summonerInfo {
-		summoner.SummonerName = summonerDTO.Name
-		summoner.SummonerLevel = summonerDTO.SummonerLevel
-		summoner.SummonerID = summonerDTO.ID
-		summoner.AccountID = summonerDTO.AccountID
-		summoner.Puuid = summonerDTO.Puuid
-		summoner.ProfileIconID = summonerDTO.ProfileIconID
-		summoner.RevisionDate = summonerDTO.RevisionDate
-	}
-	var leagueInfos []LeagueInfo
-	if builder.leagueInfo {
-		responseLeague, errorResponseLeague := NewRequestBuilder().TypeBuilder("league").WithPathParam(summonerDTO.ID).Build().Run()
-		if errorResponseLeague != nil {
-			logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
-			logOperation.Print("Failed build summoner, get league info")
-			return Summoner{}, errorResponseLeague
-		}
-		defer responseLeague.Body.Close()
-		var leagueEntryDTO []LeagueEntryDTO
-		json.NewDecoder(responseLeague.Body).Decode(&leagueEntryDTO)
-		for _, info := range leagueEntryDTO {
-			leagueInfo := LeagueInfo{
-				LeagueID:      info.LeagueID,
-				QueueType:     info.QueueType,
-				Tier:          info.Tier,
-				Rank:          info.Rank,
-				LeaguePoints:  info.LeaguePoints,
-				Wins:          info.Wins,
-				Losses:        info.Losses,
-				Veteran:       info.Veteran,
-				Inactive:      info.Inactive,
-				FreshBlood:    info.FreshBlood,
-				HotStreak:     info.HotStreak,
-				MiniSeriesDTO: info.MiniSeriesDTO,
-			}
-			leagueInfos = append(leagueInfos, leagueInfo)
-		}
-		summoner.LeagueInfo = leagueInfos
-	}
-	var matchlistDto MatchlistDto
-	if builder.matchesInfo {
-		responseMatches, errorResponseMatches := NewRequestBuilder().TypeBuilder("matches").WithPathParam(summonerDTO.AccountID).WithQueries([]string{"beginIndex", "endIndex"}, []string{"0", "15"}).Build().Run()
-		if errorResponseMatches != nil {
-			logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
-			logOperation.Print("Failed build summoner, get matches info")
-			return Summoner{}, errorResponseMatches
-		}
-		defer responseMatches.Body.Close()
-		json.NewDecoder(responseMatches.Body).Decode(&matchlistDto)
-		summoner.MatchesInfo = matchlistDto.Matches
-		summoner.TotalGames = matchlistDto.TotalGames
-	}
-	return summoner, nil
+	return builder.summoner, nil
 }
