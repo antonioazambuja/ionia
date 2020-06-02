@@ -6,6 +6,10 @@ import (
 	"os"
 )
 
+const summonerV4 string = "/lol/summoner/v4/summoners/by-name/"
+const leagueV4 string = "/lol/league/v4/entries/by-summoner/"
+const matchesV4 string = "/lol/match/v4/matchlists/by-account/"
+
 // SummonerDTO - summoner profile response
 type SummonerDTO struct {
 	ID            string `json:"id,omitempty"`
@@ -40,7 +44,7 @@ type SummonerBuilder struct {
 // NewSummonerBuilder - initialize SummonerBuilder
 func NewSummonerBuilder(summonerName string) *SummonerBuilder {
 	var summonerDTO SummonerDTO
-	responseSummoner, errorResponseSummoner := NewRequestBuilder().TypeBuilder("summoner").WithPathParam(summonerName).Build().Run()
+	responseSummoner, errorResponseSummoner := NewRequestBuilder(summonerV4).WithPathParam(summonerName).Run()
 	if errorResponseSummoner != nil {
 		logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
 		logOperation.Print("Failed build summoner, get summoners info")
@@ -68,7 +72,7 @@ func (builder *SummonerBuilder) WithSummonerInfo() *SummonerBuilder {
 // WithLeagueInfo - add LeagueEntryDTO data in summoner
 func (builder *SummonerBuilder) WithLeagueInfo() *SummonerBuilder {
 	var leagueInfos []LeagueInfo
-	responseLeague, errorResponseLeague := NewRequestBuilder().TypeBuilder("league").WithPathParam(builder.summonerDTO.ID).Build().Run()
+	responseLeague, errorResponseLeague := NewRequestBuilder(leagueV4).WithPathParam(builder.summonerDTO.ID).Run()
 	if errorResponseLeague != nil {
 		logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
 		logOperation.Print("Failed build summoner, get league info")
@@ -101,7 +105,7 @@ func (builder *SummonerBuilder) WithLeagueInfo() *SummonerBuilder {
 // WithMatchesInfo - add MatchReferenceDto data in summoner
 func (builder *SummonerBuilder) WithMatchesInfo() *SummonerBuilder {
 	var matchlistDto MatchlistDto
-	responseMatches, errorResponseMatches := NewRequestBuilder().TypeBuilder("matches").WithPathParam(builder.summonerDTO.AccountID).WithQueries([]string{"beginIndex", "endIndex"}, []string{"0", "15"}).Build().Run()
+	responseMatches, errorResponseMatches := NewRequestBuilder(matchesV4).WithPathParam(builder.summonerDTO.AccountID).WithQueries([]string{"beginIndex", "endIndex"}, []string{"0", "15"}).Run()
 	if errorResponseMatches != nil {
 		logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
 		logOperation.Print("Failed build summoner, get matches info")
