@@ -25,19 +25,6 @@ func GetByName(w http.ResponseWriter, r *http.Request) {
 	logOperation.Print("Perform GetByName")
 }
 
-// GetMachesByName - get matches summoner by name
-func GetMachesByName(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	params := mux.Vars(r)
-	summoner, err := svc_v1.GetByName(params["name"])
-	if err != nil {
-		logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
-		logOperation.Print("Failed get summoner in service GetMachesByName")
-	}
-	json.NewEncoder(w).Encode(summoner)
-	logOperation.Print("Perform GetMachesByName")
-}
-
 // GetInfoByName - get info summoner by name
 func GetInfoByName(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
