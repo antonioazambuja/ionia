@@ -1,14 +1,13 @@
 package v1
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"time"
 )
 
-
+// var channelResponse chan *http.Response
 
 // NewRequestBuilder - initialize SummonerBuilder
 func NewRequestBuilder(path string) *RequestBuilder {
@@ -34,7 +33,6 @@ type RequestBuilder struct {
 // WithPathParam - add path parameter in request
 func (req *RequestBuilder) WithPathParam(pathParam string) *RequestBuilder {
 	req.requestBuilded.URL.Path = req.requestBuilded.URL.Path + pathParam
-	fmt.Println(req.requestBuilded.URL.String())
 	return req
 }
 
@@ -49,7 +47,6 @@ func (req *RequestBuilder) WithQueries(keys []string, values []string) *RequestB
 	req.requestBuilded.URL.RawQuery = query.Encode()
 	return req
 }
-
 
 // Run - perform request builded
 func (req *RequestBuilder) Run() (*http.Response, error) {
