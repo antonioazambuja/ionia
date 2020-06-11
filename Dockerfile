@@ -1,13 +1,11 @@
-FROM alpine:latest as build
-WORKDIR /build
-RUN wget -O go1.14.4 https://dl.google.com/go/go1.14.4.linux-amd64.tar.gz \
-    && tar -C /usr/local -xzf go1.14.4.linux-amd64.tar.gz \
-    && export PATH=$PATH:/usr/local/go/bin
+FROM golang:latest as builder
 COPY . /app
-WORKDIR /build
-RUN go build *.go
+WORKDIR /app
+RUN go get -u github.com/gorilla/mux \
+    && go get -u github.com/antonioazambuja/ionia \
+    && CGO_ENABLED=0 GOOS=linux go build *.go
 
 FROM alpine:latest as release
 WORKDIR /app
-COPY --from=build /app main
-ENTRYPOINT ["main"]
+COPY --from=builder /app/main app
+CMD ["./app"]
