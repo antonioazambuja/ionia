@@ -20,6 +20,9 @@ func GetByName(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
 		logOperation.Print("Failed get summoner in service GetByName")
+		w.WriteHeader(http.StatusInternalServerError)
+	} else {
+		w.WriteHeader(http.StatusOK)
 	}
 	json.NewEncoder(w).Encode(summoner)
 	logOperation.Print("Perform GetByName")
@@ -33,6 +36,9 @@ func GetInfoByName(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
 		logOperation.Print("Failed get summoner in service GetInfoByName")
+		w.WriteHeader(http.StatusInternalServerError)
+	} else {
+		w.WriteHeader(http.StatusOK)
 	}
 	json.NewEncoder(w).Encode(summoner)
 	logOperation.Print("Perform GetInfoByName")
@@ -46,6 +52,9 @@ func GetMatchesByName(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
 		logOperation.Print("Failed get summoner in service GetMatchesByName")
+		w.WriteHeader(http.StatusInternalServerError)
+	} else {
+		w.WriteHeader(http.StatusOK)
 	}
 	json.NewEncoder(w).Encode(summoner)
 	logOperation.Print("Perform GetMatchesByName")
@@ -58,6 +67,9 @@ func GetLeagueByName(w http.ResponseWriter, r *http.Request) {
 	summoner, err := svc_v1.GetLeagueByName(params["name"])
 	if err != nil {
 		logOperation.Print("Failed get summoner in service GetLeagueByName")
+		w.WriteHeader(http.StatusInternalServerError)
+	} else {
+		w.WriteHeader(http.StatusOK)
 	}
 	logOperation.Print("Perform GetLeagueByName")
 	json.NewEncoder(w).Encode(summoner)
