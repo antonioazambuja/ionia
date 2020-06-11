@@ -2,8 +2,8 @@ package v1
 
 import (
 	"encoding/json"
-	"log"
-	"os"
+
+	utils "github.com/antonioazambuja/ionia/utils"
 )
 
 const summonerV4 string = "/lol/summoner/v4/summoners/by-name/"
@@ -46,8 +46,7 @@ func NewSummonerBuilder(summonerName string) *SummonerBuilder {
 	var summonerDTO SummonerDTO
 	responseSummoner, errorResponseSummoner := NewRequestBuilder(summonerV4).WithPathParam(summonerName).Run()
 	if errorResponseSummoner != nil {
-		logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
-		logOperation.Print("Failed build summoner, get summoners info")
+		utils.LogOperation.Print("Failed build summoner, get summoners info")
 		return &SummonerBuilder{}
 	}
 	defer responseSummoner.Body.Close()
@@ -74,8 +73,7 @@ func (builder *SummonerBuilder) WithLeagueInfo() *SummonerBuilder {
 	var leagueInfos []LeagueInfo
 	responseLeague, errorResponseLeague := NewRequestBuilder(leagueV4).WithPathParam(builder.summonerDTO.ID).Run()
 	if errorResponseLeague != nil {
-		logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
-		logOperation.Print("Failed build summoner, get league info")
+		utils.LogOperation.Print("Failed build summoner, get league info")
 		return &SummonerBuilder{}
 	}
 	defer responseLeague.Body.Close()
@@ -107,8 +105,7 @@ func (builder *SummonerBuilder) WithMatchesInfo() *SummonerBuilder {
 	var matchlistDto MatchlistDto
 	responseMatches, errorResponseMatches := NewRequestBuilder(matchesV4).WithPathParam(builder.summonerDTO.AccountID).WithQueries([]string{"beginIndex", "endIndex"}, []string{"0", "15"}).Run()
 	if errorResponseMatches != nil {
-		logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
-		logOperation.Print("Failed build summoner, get matches info")
+		utils.LogOperation.Print("Failed build summoner, get matches info")
 		return &SummonerBuilder{}
 	}
 	defer responseMatches.Body.Close()

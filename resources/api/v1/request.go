@@ -1,20 +1,18 @@
 package v1
 
 import (
-	"log"
 	"net/http"
 	"os"
 	"time"
-)
 
-// var channelResponse chan *http.Response
+	utils "github.com/antonioazambuja/ionia/utils"
+)
 
 // NewRequestBuilder - initialize SummonerBuilder
 func NewRequestBuilder(path string) *RequestBuilder {
 	newRequest, errNewRequest := http.NewRequest("GET", os.Getenv("ENDPOINT_REGION")+path, nil)
 	if errNewRequest != nil {
-		logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
-		logOperation.Print("Failed build request")
+		utils.LogOperation.Print("Failed build request")
 		return nil
 	}
 	newRequest.Header.Set(os.Getenv("HEADER_API_KEY"), os.Getenv("API_KEY"))
@@ -55,12 +53,10 @@ func (req *RequestBuilder) Run() (*http.Response, error) {
 	}
 	responseLeague, errResponseLeague := client.Do(req.requestBuilded)
 	if errResponseLeague != nil {
-		logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
-		logOperation.Print("Failed perform request: " + req.endpoint)
+		utils.LogOperation.Print("Failed perform request: " + req.endpoint)
 		return nil, errResponseLeague
 	} else if responseLeague.StatusCode != 200 {
-		logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
-		logOperation.Print("Failed get request with following info: '" + req.pathParam + "' in: '" + req.endpoint + "'")
+		utils.LogOperation.Print("Failed get request with following info: '" + req.pathParam + "' in: '" + req.endpoint + "'")
 		return nil, errResponseLeague
 	}
 	return responseLeague, nil
