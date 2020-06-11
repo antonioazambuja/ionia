@@ -54,9 +54,13 @@ func (req *RequestBuilder) Run() (*http.Response, error) {
 		Timeout: time.Duration(300 * time.Second),
 	}
 	responseLeague, errResponseLeague := client.Do(req.requestBuilded)
-	if errResponseLeague != nil || responseLeague.StatusCode != 200 {
+	if errResponseLeague != nil {
 		logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
-		logOperation.Print("Failed perform request")
+		logOperation.Print("Failed perform request: " + req.endpoint)
+		return nil, errResponseLeague
+	} else if responseLeague.StatusCode != 200 {
+		logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
+		logOperation.Print("Failed get request with following info: " + req.pathParam + " / in: " + req.endpoint)
 		return nil, errResponseLeague
 	}
 	return responseLeague, nil
