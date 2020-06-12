@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	rsc_v1 "github.com/antonioazambuja/ionia/resources/api/v1"
+	rsc_v1 "github.com/antonioazambuja/ionia/app/resources/api/v1"
 )
 
 // GetByName - Service summoner by name

@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"regexp"
 
-	v1 "github.com/antonioazambuja/ionia/resources/api/v1"
-	svc_v1 "github.com/antonioazambuja/ionia/services/api/v1"
-	utils "github.com/antonioazambuja/ionia/utils"
+	v1 "github.com/antonioazambuja/ionia/app/resources/api/v1"
+	svc_v1 "github.com/antonioazambuja/ionia/app/services/api/v1"
+	utils "github.com/antonioazambuja/ionia/app/utils"
 	"github.com/gorilla/mux"
 )
 
