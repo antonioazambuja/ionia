@@ -9,13 +9,18 @@ import (
 
 // GetByName - Service summoner by name
 func GetByName(summonerName string) (rsc_v1.Summoner, error) {
-	summoner, errSummoner := rsc_v1.NewSummonerBuilder(summonerName).WithSummonerInfo().WithLeagueInfo().WithMatchesInfo().Build()
-	if errSummoner != nil {
-		logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
-		logOperation.Print("Failed service GetByName")
-		return rsc_v1.Summoner{}, errSummoner
+	if checkSummonerName(summonerName) {
+		summoner, errSummoner := rsc_v1.NewSummonerBuilder(summonerName).WithSummonerInfo().WithLeagueInfo().WithMatchesInfo().Build()
+		if errSummoner != nil {
+			logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
+			logOperation.Print("Failed service GetByName")
+			return rsc_v1.Summoner{}, errSummoner
+		} else {
+			return summoner, nil
+		}
+	} else {
+		return rsc_v1.Summoner{}, errors.New("Not validate summoner name")
 	}
-	return summoner, nil
 }
 
 // GetInfoByName - Service main info summoner by name
@@ -49,4 +54,13 @@ func GetMatchesByName(summonerName string) (rsc_v1.Summoner, error) {
 		return rsc_v1.Summoner{}, errSummoner
 	}
 	return summoner, nil
+}
+
+func checkSummonerName(summonerName string) bool {
+	checkSummonerName, errEspecialCharacters := regexp.MatchString("[$&+,:;=?@#|'<>.^*()%!-]", summonerName)
+	if errEspecialCharacters != nil {
+		utils.LogOperation.Print("Error validate summoner name - " + summonerName)
+		return false
+	}
+	return !checkSummonerName
 }
