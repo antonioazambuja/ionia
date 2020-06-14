@@ -1,10 +1,13 @@
 package v1
 
 import (
+	"errors"
 	"log"
 	"os"
+	"regexp"
 
 	rsc_v1 "github.com/antonioazambuja/ionia/app/resources/api/v1"
+	"github.com/antonioazambuja/ionia/utils"
 )
 
 // GetByName - Service summoner by name
