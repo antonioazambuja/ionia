@@ -53,10 +53,10 @@ func (req *RequestBuilder) Run() (*http.Response, error) {
 	}
 	responseLeague, errResponseLeague := client.Do(req.requestBuilded)
 	if errResponseLeague != nil {
-		utils.LogOperation.Print("Failed perform request: " + req.endpoint)
+		utils.LogOperation.Print("Failed perform request: " + req.endpoint + " - " + errResponseLeague.Error())
 		return nil, errResponseLeague
 	} else if responseLeague.StatusCode != 200 {
-		utils.LogOperation.Print("Failed get request with following info: '" + req.pathParam + "' in: '" + req.endpoint + "'")
+		utils.LogOperation.Print("Failed get request with following info: '" + req.pathParam + "' in: '" + req.endpoint + "' - Invalid status code: " + responseLeague.Status)
 		return nil, errResponseLeague
 	}
 	return responseLeague, nil
