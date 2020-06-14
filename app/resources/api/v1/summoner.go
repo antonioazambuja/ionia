@@ -3,7 +3,7 @@ package v1
 import (
 	"encoding/json"
 
-	utils "github.com/antonioazambuja/app/ionia/utils"
+	utils "github.com/antonioazambuja/ionia/utils"
 )
 
 const summonerV4 string = "/lol/summoner/v4/summoners/by-name/"
