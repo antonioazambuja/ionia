@@ -19,9 +19,9 @@ func TestGetSummonerByName(test *testing.T) {
 
 func TestGetSummonerByNameInvalidSummonerName(test *testing.T) {
 	test.Parallel()
-	summoner2, errSummoner2 := svc_v1.GetByName("&*|ª")
-	assert.NotEmpty(test, errSummoner2)
-	assert.Empty(test, summoner2)
+	summoner, errSummoner := svc_v1.GetByName("&*|ª")
+	assert.NotEmpty(test, errSummoner)
+	assert.Empty(test, summoner)
 }
 
 func TestGetSummonerInfoByName(test *testing.T) {
