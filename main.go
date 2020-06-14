@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	handler_v1 "github.com/antonioazambuja/ionia/app/handlers/api/v1"
-	utils "github.com/antonioazambuja/ionia/app/utils"
+	utils "github.com/antonioazambuja/ionia/utils"
 	"github.com/gorilla/mux"
 )
 
