@@ -12,59 +12,67 @@ import (
 // GetByName - get summoner by name
 func GetByName(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+	var statusCode int
 	params := mux.Vars(r)
 	summoner, err := svc_v1.GetByName(params["name"])
 	if err != nil {
-		utils.LogOperation.Print("Failed get summoner in service GetByName")
-		w.WriteHeader(http.StatusInternalServerError)
+		utils.LogOperation.Print(err)
+		statusCode = http.StatusInternalServerError
 	} else {
-		w.WriteHeader(http.StatusOK)
+		statusCode = http.StatusOK
 	}
+	w.WriteHeader(statusCode)
 	json.NewEncoder(w).Encode(summoner)
-	utils.LogOperation.Print("Perform GetByName")
+	utils.ServiceLog(statusCode, r, "GetByName")
 }
 
 // GetInfoByName - get info summoner by name
 func GetInfoByName(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+	var statusCode int
 	params := mux.Vars(r)
 	summoner, err := svc_v1.GetInfoByName(params["name"])
 	if err != nil {
-		utils.LogOperation.Print("Failed get summoner in service GetInfoByName")
-		w.WriteHeader(http.StatusInternalServerError)
+		utils.LogOperation.Print(err)
+		statusCode = http.StatusInternalServerError
 	} else {
-		w.WriteHeader(http.StatusOK)
+		statusCode = http.StatusOK
 	}
+	w.WriteHeader(statusCode)
 	json.NewEncoder(w).Encode(summoner)
-	utils.LogOperation.Print("Perform GetInfoByName")
+	utils.ServiceLog(statusCode, r, "GetInfoByName")
 }
 
 // GetMatchesByName - get info summoner by name
 func GetMatchesByName(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+	var statusCode int
 	params := mux.Vars(r)
 	summoner, err := svc_v1.GetMatchesByName(params["name"])
 	if err != nil {
-		utils.LogOperation.Print("Failed get summoner in service GetMatchesByName")
-		w.WriteHeader(http.StatusInternalServerError)
+		utils.LogOperation.Print(err)
+		statusCode = http.StatusInternalServerError
 	} else {
-		w.WriteHeader(http.StatusOK)
+		statusCode = http.StatusOK
 	}
+	w.WriteHeader(statusCode)
 	json.NewEncoder(w).Encode(summoner)
-	utils.LogOperation.Print("Perform GetMatchesByName")
+	utils.ServiceLog(statusCode, r, "GetMatchesByName")
 }
 
 // GetLeagueByName - get info summoner by name
 func GetLeagueByName(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+	var statusCode int
 	params := mux.Vars(r)
 	summoner, err := svc_v1.GetLeagueByName(params["name"])
 	if err != nil {
-		utils.LogOperation.Print("Failed get summoner in service GetLeagueByName")
-		w.WriteHeader(http.StatusInternalServerError)
+		utils.LogOperation.Print(err)
+		statusCode = http.StatusInternalServerError
 	} else {
-		w.WriteHeader(http.StatusOK)
+		statusCode = http.StatusOK
 	}
+	w.WriteHeader(statusCode)
 	json.NewEncoder(w).Encode(summoner)
-	utils.LogOperation.Print("Perform GetLeagueByName")
+	utils.ServiceLog(statusCode, r, "GetLeagueByName")
 }
