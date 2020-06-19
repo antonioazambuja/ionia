@@ -42,18 +42,18 @@ type SummonerBuilder struct {
 }
 
 // NewSummonerBuilder - initialize SummonerBuilder
-func NewSummonerBuilder(summonerName string) *SummonerBuilder {
+func NewSummonerBuilder(summonerName string) (*SummonerBuilder, error){
 	var summonerDTO SummonerDTO
 	responseSummoner, errorResponseSummoner := NewRequestBuilder(summonerV4).WithPathParam(summonerName).Run()
 	if errorResponseSummoner != nil {
 		utils.LogOperation.Print("Failed build summoner, get summoners info")
-		return &SummonerBuilder{}
+		return &SummonerBuilder{}, errorResponseSummoner
 	}
 	defer responseSummoner.Body.Close()
 	json.NewDecoder(responseSummoner.Body).Decode(&summonerDTO)
 	return &SummonerBuilder{
 		summonerDTO: summonerDTO,
-	}
+	}, nil
 }
 
 // WithSummonerInfo - add SummonerDTO data in summoner

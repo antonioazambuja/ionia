@@ -13,61 +13,81 @@ import (
 // GetByName - Service summoner by name
 func GetByName(summonerName string) (rsc_v1.Summoner, error) {
 	if checkSummonerName(summonerName) {
-		summoner, errSummoner := rsc_v1.NewSummonerBuilder(summonerName).WithSummonerInfo().WithLeagueInfo().WithMatchesInfo().Build()
-		if errSummoner != nil {
+		summoner, errCreateNewSummoner := rsc_v1.NewSummonerBuilder(summonerName)
+		if errCreateNewSummoner != nil {
 			logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
-			logOperation.Print("Failed service GetByName")
-			return rsc_v1.Summoner{}, errSummoner
+			logOperation.Print("Error found! Failed service GetByName: errCreateNewSummoner")
+			return rsc_v1.Summoner{}, errCreateNewSummoner
 		}
-		return summoner, nil
-	} else {
-		return rsc_v1.Summoner{}, errors.New("Not validate summoner name")
+		newSummoner, errBuildNewSummoner := summoner.WithSummonerInfo().WithLeagueInfo().WithMatchesInfo().Build()
+		if errBuildNewSummoner != nil {
+			logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
+			logOperation.Print("Error found! Failed service GetByName: errBuildNewSummoner")
+			return rsc_v1.Summoner{}, errBuildNewSummoner
+		}
+		return newSummoner, nil
 	}
+	return rsc_v1.Summoner{}, errors.New("Not validate summoner name")
 }
 
 // GetInfoByName - Service main info summoner by name
 func GetInfoByName(summonerName string) (rsc_v1.Summoner, error) {
 	if checkSummonerName(summonerName) {
-		summoner, errSummoner := rsc_v1.NewSummonerBuilder(summonerName).WithSummonerInfo().Build()
-		if errSummoner != nil {
+		summoner, errCreateNewSummoner := rsc_v1.NewSummonerBuilder(summonerName)
+		if errCreateNewSummoner != nil {
 			logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
-			logOperation.Print("Failed service GetInfoByName")
-			return rsc_v1.Summoner{}, errSummoner
+			logOperation.Print("Error found! Failed service GetInfoByName: errCreateNewSummoner")
+			return rsc_v1.Summoner{}, errCreateNewSummoner
 		}
-		return summoner, nil
-	} else {
-		return rsc_v1.Summoner{}, errors.New("Not validate summoner name")
-	}
+		newSummoner, errBuildNewSummoner := summoner.WithSummonerInfo().Build()
+		if errBuildNewSummoner != nil {
+			logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
+			logOperation.Print("Error found! Failed service GetInfoByName: errBuildNewSummoner")
+			return rsc_v1.Summoner{}, errBuildNewSummoner
+		}
+		return newSummoner, nil
+	} 
+	return rsc_v1.Summoner{}, errors.New("Not validate summoner name")
 }
 
 // GetLeagueByName - Service league info summoner by name
 func GetLeagueByName(summonerName string) (rsc_v1.Summoner, error) {
 	if checkSummonerName(summonerName) {
-		summoner, errSummoner := rsc_v1.NewSummonerBuilder(summonerName).WithLeagueInfo().Build()
-		if errSummoner != nil {
+		summoner, errCreateNewSummoner := rsc_v1.NewSummonerBuilder(summonerName)
+		if errCreateNewSummoner != nil {
 			logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
-			logOperation.Print("Failed service GetLeagueByName")
-			return rsc_v1.Summoner{}, errSummoner
+			logOperation.Print("Error found! Failed service GetLeagueByName: errCreateNewSummoner")
+			return rsc_v1.Summoner{}, errCreateNewSummoner
 		}
-		return summoner, nil
-	} else {
-		return rsc_v1.Summoner{}, errors.New("Not validate summoner name")
+		newSummoner, errBuildNewSummoner := summoner.WithLeagueInfo().Build()
+		if errBuildNewSummoner != nil {
+			logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
+			logOperation.Print("Error found! Failed service GetLeagueByName: errBuildNewSummoner")
+			return rsc_v1.Summoner{}, errBuildNewSummoner
+		}
+		return newSummoner, nil
 	}
+	return rsc_v1.Summoner{}, errors.New("Not validate summoner name")
 }
 
 // GetMatchesByName - Service matches info summoner by name
 func GetMatchesByName(summonerName string) (rsc_v1.Summoner, error) {
 	if checkSummonerName(summonerName) {
-		summoner, errSummoner := rsc_v1.NewSummonerBuilder(summonerName).WithMatchesInfo().Build()
-		if errSummoner != nil {
+		summoner, errCreateNewSummoner := rsc_v1.NewSummonerBuilder(summonerName)
+		if errCreateNewSummoner != nil {
 			logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
-			logOperation.Print("Failed service GetMatchesByName")
-			return rsc_v1.Summoner{}, errSummoner
+			logOperation.Print("Error found! Failed service GetMatchesByName: errCreateNewSummoner")
+			return rsc_v1.Summoner{}, errCreateNewSummoner
 		}
-		return summoner, nil
-	} else {
-		return rsc_v1.Summoner{}, errors.New("Not validate summoner name")
+		newSummoner, errBuildNewSummoner := summoner.WithMatchesInfo().Build()
+		if errBuildNewSummoner != nil {
+			logOperation := log.New(os.Stdout, "", log.Ldate|log.Lmicroseconds|log.Lshortfile)
+			logOperation.Print("Error found! Failed service GetMatchesByName: errBuildNewSummoner")
+			return rsc_v1.Summoner{}, errBuildNewSummoner
+		}
+		return newSummoner, nil
 	}
+	return rsc_v1.Summoner{}, errors.New("Not validate summoner name")
 }
 
 func checkSummonerName(summonerName string) bool {
