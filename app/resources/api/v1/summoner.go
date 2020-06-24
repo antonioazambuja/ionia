@@ -1,7 +1,9 @@
 package v1
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
 
 	utils "github.com/antonioazambuja/ionia/utils"
 )
@@ -39,10 +41,11 @@ type Summoner struct {
 type SummonerBuilder struct {
 	summonerDTO SummonerDTO
 	summoner    Summoner
+	ID          string
 }
 
 // NewSummonerBuilder - initialize SummonerBuilder
-func NewSummonerBuilder(summonerName string) (*SummonerBuilder, error){
+func NewSummonerBuilder(summonerName string, serviceID string) (*SummonerBuilder, error) {
 	var summonerDTO SummonerDTO
 	responseSummoner, errorResponseSummoner := NewRequestBuilder(summonerV4).WithPathParam(summonerName).Run()
 	if errorResponseSummoner != nil {
@@ -53,6 +56,7 @@ func NewSummonerBuilder(summonerName string) (*SummonerBuilder, error){
 	json.NewDecoder(responseSummoner.Body).Decode(&summonerDTO)
 	return &SummonerBuilder{
 		summonerDTO: summonerDTO,
+		ID:          summonerName + "_" + serviceID,
 	}, nil
 }
 
@@ -117,5 +121,16 @@ func (builder *SummonerBuilder) WithMatchesInfo() *SummonerBuilder {
 
 // Build - create and get data in Riot API
 func (builder *SummonerBuilder) Build() (Summoner, error) {
+	summonerJSON, errParseStructToJSON := json.Marshal(builder.summoner)
+	if errParseStructToJSON != nil {
+		utils.LogOperation.Println("Failed cached summoner of id service: " + builder.ID)
+		return builder.summoner, nil
+	}
+	setSummonerRedisResult, errSetSummonerRedisResult := GetConn().Do(context.TODO(), "SET", fmt.Sprint(builder.ID), summonerJSON).Result()
+	if errSetSummonerRedisResult != nil {
+		utils.LogOperation.Println("Failed cached summoner of id service: " + builder.ID)
+		return builder.summoner, nil
+	}
+	utils.LogOperation.Printf("Succesfull cached summoner of id service: %s. Result Redis: %s\n", builder.ID, setSummonerRedisResult)
 	return builder.summoner, nil
 }
