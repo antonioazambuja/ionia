@@ -4,6 +4,7 @@ WORKDIR /app
 RUN go get -u github.com/gorilla/mux \
     && go get -u github.com/antonioazambuja/ionia \
     && go get -u github.com/stretchr/testify/assert \
+    && go get -u github.com/go-redis/redis \
     && CGO_ENABLED=0 GOOS=linux go test test/v1/*.go
 
 FROM golang:latest as builder
