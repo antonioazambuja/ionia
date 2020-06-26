@@ -12,7 +12,6 @@ import (
 
 func main() {
 	rscV1.CreateRedisConnection()
-	utils.LogOperation.Println(rscV1.GetConn())
 	router := mux.NewRouter()
 	router.HandleFunc("/summoner/byname/{name}", handler_v1.GetByName).Methods("GET")
 	router.HandleFunc("/summoner/byname/{name}/matches", handler_v1.GetMatchesByName).Methods("GET")

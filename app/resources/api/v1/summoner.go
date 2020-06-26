@@ -44,6 +44,23 @@ type SummonerBuilder struct {
 	ID          string
 }
 
+// NewCacheSummoner - initialize SummonerBuilder
+func NewCacheSummoner(summonerName string, serviceID string) (Summoner, error) {
+	var summoner Summoner
+	summonerCacheRedis, errGetSummonerCacheRedis := GetConn().Get(context.TODO(), summonerName+"_"+serviceID).Result()
+	if errGetSummonerCacheRedis != nil {
+		utils.LogOperation.Print("Not found cache data in Redis - errGetSummonerCacheRedis. Result Redis: " + errGetSummonerCacheRedis.Error())
+		return Summoner{}, errGetSummonerCacheRedis
+	}
+	errParseJSONToStruct := json.Unmarshal([]byte(summonerCacheRedis), &summoner)
+	if errParseJSONToStruct != nil {
+		utils.LogOperation.Println("Error found cache data in Redis - errParseJSONToStruct. Result Redis: " + errParseJSONToStruct.Error())
+		return Summoner{}, errParseJSONToStruct
+	}
+	utils.LogOperation.Print("Found cache data in Redis")
+	return summoner, nil
+}
+
 // NewSummonerBuilder - initialize SummonerBuilder
 func NewSummonerBuilder(summonerName string, serviceID string) (*SummonerBuilder, error) {
 	var summonerDTO SummonerDTO
