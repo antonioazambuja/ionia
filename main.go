@@ -5,13 +5,16 @@ import (
 	"net/http"
 
 	handler_v1 "github.com/antonioazambuja/ionia/app/handlers/api/v1"
-	rscV1 "github.com/antonioazambuja/ionia/app/resources/api/v1"
+	rsc_v1 "github.com/antonioazambuja/ionia/app/resources/api/v1"
 	utils "github.com/antonioazambuja/ionia/utils"
 	"github.com/gorilla/mux"
 )
 
+func init() {
+	rsc_v1.CreateRedisConnection()
+}
+
 func main() {
-	rscV1.CreateRedisConnection()
 	router := mux.NewRouter()
 	router.HandleFunc("/summoner/byname/{name}", handler_v1.GetByName).Methods("GET")
 	router.HandleFunc("/summoner/byname/{name}/matches", handler_v1.GetMatchesByName).Methods("GET")
