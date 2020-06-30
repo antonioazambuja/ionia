@@ -51,13 +51,13 @@ func (req *RequestBuilder) Run() (*http.Response, error) {
 	client := &http.Client{
 		Timeout: time.Duration(300 * time.Second),
 	}
-	responseLeague, errResponseLeague := client.Do(req.requestBuilded)
-	if errResponseLeague != nil {
-		utils.LogOperation.Print("Failed perform request: " + req.endpoint + " - " + errResponseLeague.Error())
-		return nil, errResponseLeague
-	} else if responseLeague.StatusCode != 200 {
-		utils.LogOperation.Print("Failed get request with following info: '" + req.pathParam + "' in: '" + req.endpoint + "' - Invalid status code: " + responseLeague.Status)
-		return nil, errResponseLeague
+	response, errResponse := client.Do(req.requestBuilded)
+	if errResponse != nil {
+		utils.LogOperation.Print("Failed perform request: " + req.endpoint + " - " + errResponse.Error())
+		return nil, errResponse
+	} else if response.StatusCode != 200 {
+		utils.LogOperation.Print("Failed get request with following info: '" + req.pathParam + "' in: '" + req.endpoint + "' - Invalid status code: " + response.Status)
+		return nil, errResponse
 	}
-	return responseLeague, nil
+	return response, nil
 }
