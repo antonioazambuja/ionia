@@ -4,13 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
 
 	utils "github.com/antonioazambuja/ionia/utils"
 )
-
-const summonerV4 string = "/lol/summoner/v4/summoners/by-name/"
-const leagueV4 string = "/lol/league/v4/entries/by-summoner/"
-const matchesV4 string = "/lol/match/v4/matchlists/by-account/"
 
 // SummonerDTO - summoner profile response
 type SummonerDTO struct {
@@ -45,7 +42,25 @@ type SummonerBuilder struct {
 }
 
 // NewCacheSummoner - initialize SummonerBuilder
-func NewCacheSummoner(summonerName string, serviceID string) (Summoner, error) {
+func NewCacheSummoner(summoner *Summoner, serviceID string) error {
+	summonerJSON, errParseStructToJSON := json.Marshal(summoner)
+	if errParseStructToJSON != nil {
+		utils.LogOperation.Println("Failed cached summoner of id service: " + serviceID)
+		utils.LogOperation.Println(errParseStructToJSON.Error())
+		return errParseStructToJSON
+	}
+	setSummonerRedisResult, errSetSummonerRedisResult := GetConn().Do(context.TODO(), "SET", fmt.Sprint(summoner.SummonerName+"_"+serviceID), summonerJSON).Result()
+	if errSetSummonerRedisResult != nil {
+		utils.LogOperation.Println("Failed cached summoner of id service: " + serviceID)
+		utils.LogOperation.Println(errSetSummonerRedisResult.Error())
+		return errSetSummonerRedisResult
+	}
+	utils.LogOperation.Printf("Succesfull cached summoner of id service: %s. Result Redis: %s\n", summoner.SummonerName+"_"+serviceID, setSummonerRedisResult)
+	return nil
+}
+
+// GetCacheSummoner - initialize SummonerBuilder
+func GetCacheSummoner(summonerName string, serviceID string) (Summoner, error) {
 	var summoner Summoner
 	summonerCacheRedis, errGetSummonerCacheRedis := GetConn().Get(context.TODO(), summonerName+"_"+serviceID).Result()
 	if errGetSummonerCacheRedis != nil {
@@ -61,93 +76,18 @@ func NewCacheSummoner(summonerName string, serviceID string) (Summoner, error) {
 	return summoner, nil
 }
 
-// NewSummonerBuilder - initialize SummonerBuilder
-func NewSummonerBuilder(summonerName string, serviceID string) (*SummonerBuilder, error) {
+// NewSummoner - initialize SummonerBuilder
+func NewSummoner(summonerHTTPResponse *http.Response) *Summoner {
 	var summonerDTO SummonerDTO
-	responseSummoner, errorResponseSummoner := NewRequestBuilder(summonerV4).WithPathParam(summonerName).Run()
-	if errorResponseSummoner != nil {
-		utils.LogOperation.Print("Failed build summoner, get summoners info")
-		return &SummonerBuilder{}, errorResponseSummoner
-	}
-	defer responseSummoner.Body.Close()
-	json.NewDecoder(responseSummoner.Body).Decode(&summonerDTO)
-	return &SummonerBuilder{
-		summonerDTO: summonerDTO,
-		ID:          summonerName + "_" + serviceID,
-	}, nil
-}
-
-// WithSummonerInfo - add SummonerDTO data in summoner
-func (builder *SummonerBuilder) WithSummonerInfo() *SummonerBuilder {
-	builder.summoner.SummonerName = builder.summonerDTO.Name
-	builder.summoner.SummonerLevel = builder.summonerDTO.SummonerLevel
-	builder.summoner.SummonerID = builder.summonerDTO.ID
-	builder.summoner.AccountID = builder.summonerDTO.AccountID
-	builder.summoner.Puuid = builder.summonerDTO.Puuid
-	builder.summoner.ProfileIconID = builder.summonerDTO.ProfileIconID
-	builder.summoner.RevisionDate = builder.summonerDTO.RevisionDate
-	return builder
-}
-
-// WithLeagueInfo - add LeagueEntryDTO data in summoner
-func (builder *SummonerBuilder) WithLeagueInfo() *SummonerBuilder {
-	var leagueInfos []LeagueInfo
-	responseLeague, errorResponseLeague := NewRequestBuilder(leagueV4).WithPathParam(builder.summonerDTO.ID).Run()
-	if errorResponseLeague != nil {
-		utils.LogOperation.Print("Failed build summoner, get league info")
-		return &SummonerBuilder{}
-	}
-	defer responseLeague.Body.Close()
-	var leagueEntryDTO []LeagueEntryDTO
-	json.NewDecoder(responseLeague.Body).Decode(&leagueEntryDTO)
-	for _, info := range leagueEntryDTO {
-		leagueInfo := LeagueInfo{
-			LeagueID:      info.LeagueID,
-			QueueType:     info.QueueType,
-			Tier:          info.Tier,
-			Rank:          info.Rank,
-			LeaguePoints:  info.LeaguePoints,
-			Wins:          info.Wins,
-			Losses:        info.Losses,
-			Veteran:       info.Veteran,
-			Inactive:      info.Inactive,
-			FreshBlood:    info.FreshBlood,
-			HotStreak:     info.HotStreak,
-			MiniSeriesDTO: info.MiniSeriesDTO,
-		}
-		leagueInfos = append(leagueInfos, leagueInfo)
-	}
-	builder.summoner.LeagueInfo = leagueInfos
-	return builder
-}
-
-// WithMatchesInfo - add MatchReferenceDto data in summoner
-func (builder *SummonerBuilder) WithMatchesInfo() *SummonerBuilder {
-	var matchlistDto MatchlistDto
-	responseMatches, errorResponseMatches := NewRequestBuilder(matchesV4).WithPathParam(builder.summonerDTO.AccountID).WithQueries([]string{"beginIndex", "endIndex"}, []string{"0", "15"}).Run()
-	if errorResponseMatches != nil {
-		utils.LogOperation.Print("Failed build summoner, get matches info")
-		return &SummonerBuilder{}
-	}
-	defer responseMatches.Body.Close()
-	json.NewDecoder(responseMatches.Body).Decode(&matchlistDto)
-	builder.summoner.MatchesInfo = matchlistDto.Matches
-	builder.summoner.TotalGames = matchlistDto.TotalGames
-	return builder
-}
-
-// Build - create and get data in Riot API
-func (builder *SummonerBuilder) Build() (Summoner, error) {
-	summonerJSON, errParseStructToJSON := json.Marshal(builder.summoner)
-	if errParseStructToJSON != nil {
-		utils.LogOperation.Println("Failed cached summoner of id service: " + builder.ID)
-		return builder.summoner, nil
-	}
-	setSummonerRedisResult, errSetSummonerRedisResult := GetConn().Do(context.TODO(), "SET", fmt.Sprint(builder.ID), summonerJSON).Result()
-	if errSetSummonerRedisResult != nil {
-		utils.LogOperation.Println("Failed cached summoner of id service: " + builder.ID)
-		return builder.summoner, nil
-	}
-	utils.LogOperation.Printf("Succesfull cached summoner of id service: %s. Result Redis: %s\n", builder.ID, setSummonerRedisResult)
-	return builder.summoner, nil
+	summoner := new(Summoner)
+	json.NewDecoder(summonerHTTPResponse.Body).Decode(&summonerDTO)
+	defer summonerHTTPResponse.Body.Close()
+	summoner.SummonerName = summonerDTO.Name
+	summoner.SummonerLevel = summonerDTO.SummonerLevel
+	summoner.SummonerID = summonerDTO.ID
+	summoner.AccountID = summonerDTO.AccountID
+	summoner.Puuid = summonerDTO.Puuid
+	summoner.ProfileIconID = summonerDTO.ProfileIconID
+	summoner.RevisionDate = summonerDTO.RevisionDate
+	return summoner
 }
