@@ -1,5 +1,10 @@
 package v1
 
+import (
+	"encoding/json"
+	"net/http"
+)
+
 // MiniSeriesDTO -
 type MiniSeriesDTO struct {
 	Losses   int    `json:"losses,omitempty"`
@@ -26,4 +31,13 @@ type MatchReferenceDto struct {
 	Queue      int    `json:"queue,omitempty"`
 	Lane       string `json:"lane,omitempty"`
 	Timestamp  int64  `json:"timestamp,omitempty"`
+}
+
+// WithMatchesInfo - add MatchReferenceDto data in summoner
+func (summoner *Summoner) WithMatchesInfo(summonerHTTPMatchesResponse *http.Response) {
+	var matchlistDto MatchlistDto
+	defer summonerHTTPMatchesResponse.Body.Close()
+	json.NewDecoder(summonerHTTPMatchesResponse.Body).Decode(&matchlistDto)
+	summoner.MatchesInfo = matchlistDto.Matches
+	summoner.TotalGames = matchlistDto.TotalGames
 }
