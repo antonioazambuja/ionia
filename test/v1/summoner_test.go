@@ -1,39 +1,39 @@
 package v1
 
 import (
+	"bytes"
+	"io/ioutil"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	rsc_v1 "github.com/antonioazambuja/ionia/app/resources/api/v1"
-	svc_v1 "github.com/antonioazambuja/ionia/app/services/api/v1"
 	"github.com/stretchr/testify/assert"
 	// assert "github.com/stretchr/testify/assert"
 )
 
 func TestServiceGetInfoByName(test *testing.T) {
 	test.Parallel()
-	serverTestServiceGetByName := httptest.NewServer(
-		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if r.URL.Path == svc_v1.SummonerV4+"IsBlackPanther" {
-				w.Header().Add("Content-Type", "application/json")
-				w.Write([]byte(`
-				{
-					"name": "IsBlackPanther",
-					"summonerLevel": 1,
-					"id": "OSIlasjdsanc",
-					"accountId": "IsolsmdhYDHadKBDA-9fM",
-					"puuid": "jClaj-2S4ZsbjRgIItf1PtjL7-FXbqyDeC",
-					"profileIconId": 1,
-					"revisionDate": 1592855746000
-				}`))
-			}
-		}),
-	)
-	defer serverTestServiceGetByName.Close()
-	mockRiotAPIClient := NewMockRiotAPI(serverTestServiceGetByName.URL)
-	responseSummonerMock, errResponseSummonerMock := mockRiotAPIClient.GetInfoByName("IsBlackPanther")
-	assert.Nil(test, errResponseSummonerMock)
+	bodyServiceInfoByName := []byte(`{
+		"name": "IsBlackPanther",
+		"summonerLevel": 1,
+		"id": "OSIlasjdsanc",
+		"accountId": "IsolsmdhYDHadKBDA-9fM",
+		"puuid": "jClaj-2S4ZsbjRgIItf1PtjL7-FXbqyDeC",
+		"profileIconId": 1,
+		"revisionDate": 1592855746000
+	}`)
+	responseSummonerMock := &http.Response{
+		Status:        "200 OK",
+		StatusCode:    200,
+		Proto:         "HTTP/1.1",
+		ProtoMajor:    1,
+		ProtoMinor:    1,
+		Body:          ioutil.NopCloser(bytes.NewReader(bodyServiceInfoByName)),
+		ContentLength: int64(len(bodyServiceInfoByName)),
+		Request:       nil,
+		Header:        make(http.Header, 0),
+	}
+	defer responseSummonerMock.Body.Close()
 	summoner := rsc_v1.NewSummoner(responseSummonerMock)
 	assert.Equal(test, "IsBlackPanther", summoner.SummonerName)
 	assert.Equal(test, 1, summoner.SummonerLevel)
