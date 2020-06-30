@@ -9,8 +9,7 @@ import (
 	"github.com/go-redis/redis"
 )
 
-// RedisClientMaster - global variable of connection with Redis
-var RedisClientMaster *redis.Client
+var redisClientMaster *redis.Client
 
 // CreateRedisConnection - create new connection with Redis
 func CreateRedisConnection() {
@@ -26,13 +25,13 @@ func CreateRedisConnection() {
 	} else {
 		utils.LogOperation.Println("Connected in Redis: " + pingResult)
 	}
-	RedisClientMaster = client
+	redisClientMaster = client
 }
 
 // GetConn - test connection with Redis, if failed create new connection
 func GetConn() *redis.Client {
-	if pingResult := RedisClientMaster.Ping(context.TODO()); pingResult.Err() != nil {
+	if pingResult := redisClientMaster.Ping(context.TODO()); pingResult.Err() != nil {
 		CreateRedisConnection()
 	}
-	return RedisClientMaster
+	return redisClientMaster
 }
