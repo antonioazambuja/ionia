@@ -6,6 +6,15 @@ import (
 	"net/http"
 )
 
+
+// MiniSeriesDTO -
+type MiniSeriesDTO struct {
+	Losses   int    `json:"losses,omitempty"`
+	Progress string `json:"progress,omitempty"`
+	Target   int    `json:"target,omitempty"`
+	Wins     int    `json:"wins,omitempty"`
+}
+
 // LeagueEntryDTO - league data response of Riot API
 type LeagueEntryDTO struct {
 	LeagueID      string        `json:"leagueId,omitempty"`
@@ -43,9 +52,10 @@ type LeagueInfo struct {
 // WithLeagueInfo - add LeagueEntryDTO data in summoner
 func (summoner *Summoner) WithLeagueInfo(summonerLeagueHTTPResponse *http.Response) {
 	var leagueInfos []LeagueInfo
-	defer summonerLeagueHTTPResponse.Body.Close()
 	var leagueEntryDTO []LeagueEntryDTO
-	json.NewDecoder(summonerLeagueHTTPResponse.Body).Decode(&leagueEntryDTO)
+	if errDecodeLeagueResponse := json.NewDecoder(summonerLeagueHTTPResponse.Body).Decode(&leagueEntryDTO); errDecodeLeagueResponse != nil {
+		utils.LogOperation.Println(errDecodeLeagueResponse)
+	}
 	for _, info := range leagueEntryDTO {
 		leagueInfo := LeagueInfo{
 			LeagueID:      info.LeagueID,
@@ -64,6 +74,4 @@ func (summoner *Summoner) WithLeagueInfo(summonerLeagueHTTPResponse *http.Respon
 		leagueInfos = append(leagueInfos, leagueInfo)
 	}
 	summoner.LeagueInfo = leagueInfos
-	utils.LogOperation.Println(&summoner)
-	utils.LogOperation.Println(leagueInfos)
 }

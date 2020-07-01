@@ -15,7 +15,7 @@ const matchesV4 string = "/lol/match/v4/matchlists/by-account/"
 
 // GetInfoByName - Service info summoner by name
 func GetInfoByName(summonerName string) (*rsc_v1.Summoner, error) {
-	if errCheckSummonerName := checkSummonerName(summonerName); errCheckSummonerName != nil {
+	if errCheckSummonerName := CheckSummonerName(summonerName); errCheckSummonerName != nil {
 		utils.LogOperation.Println("Not validate summoner name")
 		return nil, errCheckSummonerName
 	}
@@ -29,18 +29,18 @@ func GetInfoByName(summonerName string) (*rsc_v1.Summoner, error) {
 	if err != nil {
 		panic(err)
 	}
+	defer summonerHTTPResponse.Body.Close()
 	summoner := rsc_v1.NewSummoner(summonerHTTPResponse)
-	newSummoner := summoner
-	if errNewCacheSummoner := rsc_v1.NewCacheSummoner(newSummoner, "info"); errNewCacheSummoner != nil {
+	if errNewCacheSummoner := rsc_v1.NewCacheSummoner(summoner, "info"); errNewCacheSummoner != nil {
 		utils.LogOperation.Print("Error found! Failed service GetByName: errNewCacheSummoner")
 		utils.LogOperation.Print(errNewCacheSummoner.Error())
 	}
-	return newSummoner, nil
+	return summoner, nil
 }
 
 // GetByName - Service complex info summoner by name
 func GetByName(summonerName string) (*rsc_v1.Summoner, error) {
-	if errCheckSummonerName := checkSummonerName(summonerName); errCheckSummonerName != nil {
+	if errCheckSummonerName := CheckSummonerName(summonerName); errCheckSummonerName != nil {
 		utils.LogOperation.Println("Not validate summoner name")
 		return nil, errCheckSummonerName
 	}
@@ -57,11 +57,13 @@ func GetByName(summonerName string) (*rsc_v1.Summoner, error) {
 	if errorHTTPResponseLeague != nil {
 		panic(errorHTTPResponseLeague)
 	}
+	defer summonerHTTPResponse.Body.Close()
 	summonerHTTPMatchesResponse, errorSummonerHTTPMatchesResponse := rsc_v1.NewRequestBuilder(matchesV4).WithPathParam(summoner.AccountID).WithQueries([]string{"beginIndex", "endIndex"}, []string{"0", "15"}).Run()
 	if errorSummonerHTTPMatchesResponse != nil {
 		utils.LogOperation.Print("Failed build summoner, get matches info")
 		return nil, errorSummonerHTTPMatchesResponse
 	}
+	defer summonerHTTPMatchesResponse.Body.Close()
 	summoner.WithLeagueInfo(summonerLeagueHTTPResponse)
 	summoner.WithMatchesInfo(summonerHTTPMatchesResponse)
 	if errNewCacheSummoner := rsc_v1.NewCacheSummoner(summoner, "full"); errNewCacheSummoner != nil {
@@ -73,7 +75,7 @@ func GetByName(summonerName string) (*rsc_v1.Summoner, error) {
 
 // GetLeagueByName - Service league info summoner by name
 func GetLeagueByName(summonerName string) (*rsc_v1.Summoner, error) {
-	if errCheckSummonerName := checkSummonerName(summonerName); errCheckSummonerName != nil {
+	if errCheckSummonerName := CheckSummonerName(summonerName); errCheckSummonerName != nil {
 		utils.LogOperation.Println("Not validate summoner name")
 		return nil, errCheckSummonerName
 	}
@@ -85,13 +87,14 @@ func GetLeagueByName(summonerName string) (*rsc_v1.Summoner, error) {
 	if err != nil {
 		panic(err)
 	}
+	defer summonerHTTPResponse.Body.Close()
 	summoner := rsc_v1.NewSummoner(summonerHTTPResponse)
 	summonerLeagueHTTPResponse, errorHTTPResponseLeague := rsc_v1.NewRequestBuilder(leagueV4).WithPathParam(summoner.SummonerID).Run()
 	if errorHTTPResponseLeague != nil {
 		panic(errorHTTPResponseLeague)
 	}
+	defer summonerLeagueHTTPResponse.Body.Close()
 	summoner.WithLeagueInfo(summonerLeagueHTTPResponse)
-	utils.LogOperation.Println(&summoner)
 	if errNewCacheSummoner := rsc_v1.NewCacheSummoner(summoner, "league"); errNewCacheSummoner != nil {
 		utils.LogOperation.Print("Error found! Failed service GetByName: errNewCacheSummoner")
 		utils.LogOperation.Print(errNewCacheSummoner.Error())
@@ -101,7 +104,7 @@ func GetLeagueByName(summonerName string) (*rsc_v1.Summoner, error) {
 
 // GetMatchesByName - Service matches info summoner by name
 func GetMatchesByName(summonerName string) (*rsc_v1.Summoner, error) {
-	if errCheckSummonerName := checkSummonerName(summonerName); errCheckSummonerName != nil {
+	if errCheckSummonerName := CheckSummonerName(summonerName); errCheckSummonerName != nil {
 		utils.LogOperation.Println("Not validate summoner name")
 		return nil, errCheckSummonerName
 	}
@@ -115,6 +118,7 @@ func GetMatchesByName(summonerName string) (*rsc_v1.Summoner, error) {
 	if err != nil {
 		panic(err)
 	}
+	defer summonerHTTPResponse.Body.Close()
 	summoner := rsc_v1.NewSummoner(summonerHTTPResponse)
 	summonerMatchesHTTPResponse, errorMatchesHTTPResponse := rsc_v1.NewRequestBuilder(matchesV4).WithPathParam(summoner.AccountID).WithQueries([]string{"beginIndex", "endIndex"}, []string{"0", "15"}).Run()
 	if errorMatchesHTTPResponse != nil {
@@ -122,6 +126,7 @@ func GetMatchesByName(summonerName string) (*rsc_v1.Summoner, error) {
 		utils.LogOperation.Print(errorMatchesHTTPResponse.Error())
 		return nil, errorMatchesHTTPResponse
 	}
+	defer summonerMatchesHTTPResponse.Body.Close()
 	summoner.WithMatchesInfo(summonerMatchesHTTPResponse)
 	if errNewCacheSummoner := rsc_v1.NewCacheSummoner(summoner, "matches"); errNewCacheSummoner != nil {
 		utils.LogOperation.Print("Error found! Failed service GetByName: errNewCacheSummoner")
@@ -130,7 +135,8 @@ func GetMatchesByName(summonerName string) (*rsc_v1.Summoner, error) {
 	return summoner, nil
 }
 
-func checkSummonerName(summonerName string) error {
+// CheckSummonerName - Validate summoner name before perform get info in service
+func CheckSummonerName(summonerName string) error {
 	_, errEspecialCharacters := regexp.MatchString("[$&+,:;=?@#|'<>.^*()%!-]", summonerName)
 	if errEspecialCharacters != nil {
 		utils.LogOperation.Print("Error validate summoner name - " + summonerName)

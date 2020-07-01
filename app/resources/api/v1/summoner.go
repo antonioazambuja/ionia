@@ -81,7 +81,6 @@ func NewSummoner(summonerHTTPResponse *http.Response) *Summoner {
 	var summonerDTO SummonerDTO
 	summoner := new(Summoner)
 	json.NewDecoder(summonerHTTPResponse.Body).Decode(&summonerDTO)
-	defer summonerHTTPResponse.Body.Close()
 	summoner.SummonerName = summonerDTO.Name
 	summoner.SummonerLevel = summonerDTO.SummonerLevel
 	summoner.SummonerID = summonerDTO.ID
