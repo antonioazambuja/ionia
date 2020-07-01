@@ -16,7 +16,7 @@ const matchesV4 string = "/lol/match/v4/matchlists/by-account/"
 // GetInfoByName - Service info summoner by name
 func GetInfoByName(summonerName string) (*rsc_v1.Summoner, error) {
 	if errCheckSummonerName := CheckSummonerName(summonerName); errCheckSummonerName != nil {
-		utils.LogOperation.Println("Not validate summoner name")
+		utils.LogOperation.Println(errCheckSummonerName.Error())
 		return nil, errCheckSummonerName
 	}
 	summonerCacheRedis, errSummonerCacheRedis := rsc_v1.GetCacheSummoner(summonerName, "info")
@@ -25,9 +25,10 @@ func GetInfoByName(summonerName string) (*rsc_v1.Summoner, error) {
 	}
 	request := rsc_v1.NewRequestBuilder(summonerV4)
 	request.WithPathParam(summonerName)
-	summonerHTTPResponse, err := request.Run()
-	if err != nil {
-		panic(err)
+	summonerHTTPResponse, errSummonerHTTPResponse := request.Run()
+	if errSummonerHTTPResponse != nil {
+		utils.LogOperation.Println(errSummonerHTTPResponse.Error())
+		return nil, errSummonerHTTPResponse
 	}
 	defer summonerHTTPResponse.Body.Close()
 	summoner := rsc_v1.NewSummoner(summonerHTTPResponse)
@@ -48,14 +49,16 @@ func GetByName(summonerName string) (*rsc_v1.Summoner, error) {
 	if errSummonerCacheRedis == nil {
 		return &summonerCacheRedis, nil
 	}
-	summonerHTTPResponse, err := rsc_v1.NewRequestBuilder(summonerV4).WithPathParam(summonerName).Run()
-	if err != nil {
-		panic(err)
+	summonerHTTPResponse, errSummonerHTTPResponse := rsc_v1.NewRequestBuilder(summonerV4).WithPathParam(summonerName).Run()
+	if errSummonerHTTPResponse != nil {
+		utils.LogOperation.Println(errSummonerHTTPResponse.Error())
+		return nil, errSummonerHTTPResponse
 	}
 	summoner := rsc_v1.NewSummoner(summonerHTTPResponse)
 	summonerLeagueHTTPResponse, errorHTTPResponseLeague := rsc_v1.NewRequestBuilder(leagueV4).WithPathParam(summoner.SummonerID).Run()
 	if errorHTTPResponseLeague != nil {
-		panic(errorHTTPResponseLeague)
+		utils.LogOperation.Println(errorHTTPResponseLeague.Error())
+		return nil, errorHTTPResponseLeague
 	}
 	defer summonerHTTPResponse.Body.Close()
 	summonerHTTPMatchesResponse, errorSummonerHTTPMatchesResponse := rsc_v1.NewRequestBuilder(matchesV4).WithPathParam(summoner.AccountID).WithQueries([]string{"beginIndex", "endIndex"}, []string{"0", "15"}).Run()
@@ -83,15 +86,17 @@ func GetLeagueByName(summonerName string) (*rsc_v1.Summoner, error) {
 	if errSummonerCacheRedis == nil {
 		return &summonerCacheRedis, nil
 	}
-	summonerHTTPResponse, err := rsc_v1.NewRequestBuilder(summonerV4).WithPathParam(summonerName).Run()
-	if err != nil {
-		panic(err)
+	summonerHTTPResponse, errSummonerHTTPResponse := rsc_v1.NewRequestBuilder(summonerV4).WithPathParam(summonerName).Run()
+	if errSummonerHTTPResponse != nil {
+		utils.LogOperation.Println(errSummonerHTTPResponse.Error())
+		return nil, errSummonerHTTPResponse
 	}
 	defer summonerHTTPResponse.Body.Close()
 	summoner := rsc_v1.NewSummoner(summonerHTTPResponse)
 	summonerLeagueHTTPResponse, errorHTTPResponseLeague := rsc_v1.NewRequestBuilder(leagueV4).WithPathParam(summoner.SummonerID).Run()
 	if errorHTTPResponseLeague != nil {
-		panic(errorHTTPResponseLeague)
+		utils.LogOperation.Println(errorHTTPResponseLeague.Error())
+		return nil, errorHTTPResponseLeague
 	}
 	defer summonerLeagueHTTPResponse.Body.Close()
 	summoner.WithLeagueInfo(summonerLeagueHTTPResponse)
@@ -114,15 +119,15 @@ func GetMatchesByName(summonerName string) (*rsc_v1.Summoner, error) {
 	}
 	request := rsc_v1.NewRequestBuilder(summonerV4)
 	request.WithPathParam(summonerName)
-	summonerHTTPResponse, err := request.Run()
-	if err != nil {
-		panic(err)
+	summonerHTTPResponse, errSummonerHTTPResponse := request.Run()
+	if errSummonerHTTPResponse != nil {
+		utils.LogOperation.Println(errSummonerHTTPResponse.Error())
+		return nil, errSummonerHTTPResponse
 	}
 	defer summonerHTTPResponse.Body.Close()
 	summoner := rsc_v1.NewSummoner(summonerHTTPResponse)
 	summonerMatchesHTTPResponse, errorMatchesHTTPResponse := rsc_v1.NewRequestBuilder(matchesV4).WithPathParam(summoner.AccountID).WithQueries([]string{"beginIndex", "endIndex"}, []string{"0", "15"}).Run()
 	if errorMatchesHTTPResponse != nil {
-		utils.LogOperation.Print("Failed build summoner, get matches info")
 		utils.LogOperation.Print(errorMatchesHTTPResponse.Error())
 		return nil, errorMatchesHTTPResponse
 	}

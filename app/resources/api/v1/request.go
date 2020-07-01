@@ -12,7 +12,7 @@ import (
 func NewRequestBuilder(path string) *RequestBuilder {
 	newRequest, errNewRequest := http.NewRequest("GET", os.Getenv("ENDPOINT_REGION")+path, nil)
 	if errNewRequest != nil {
-		utils.LogOperation.Print("Failed build request")
+		utils.LogOperation.Println(errNewRequest.Error())
 		return nil
 	}
 	newRequest.Header.Set(os.Getenv("HEADER_API_KEY"), os.Getenv("API_KEY"))

@@ -14,9 +14,9 @@ func GetByName(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var statusCode int
 	params := mux.Vars(r)
-	summoner, err := svc_v1.GetByName(params["name"])
-	if err != nil {
-		utils.LogOperation.Print(err)
+	summoner, errGetByName := svc_v1.GetByName(params["name"])
+	if errGetByName != nil {
+		utils.LogOperation.Print(errGetByName)
 		statusCode = http.StatusInternalServerError
 	} else {
 		statusCode = http.StatusOK
@@ -31,9 +31,9 @@ func GetInfoByName(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var statusCode int
 	params := mux.Vars(r)
-	summoner, err := svc_v1.GetInfoByName(params["name"])
-	if err != nil {
-		utils.LogOperation.Print(err)
+	summoner, errGetInfoByName := svc_v1.GetInfoByName(params["name"])
+	if errGetInfoByName != nil {
+		utils.LogOperation.Print(errGetInfoByName)
 		statusCode = http.StatusInternalServerError
 	} else {
 		statusCode = http.StatusOK
@@ -48,9 +48,9 @@ func GetMatchesByName(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var statusCode int
 	params := mux.Vars(r)
-	summoner, err := svc_v1.GetMatchesByName(params["name"])
-	if err != nil {
-		utils.LogOperation.Print(err)
+	summoner, errGetMatchesByName := svc_v1.GetMatchesByName(params["name"])
+	if errGetMatchesByName != nil {
+		utils.LogOperation.Print(errGetMatchesByName)
 		statusCode = http.StatusInternalServerError
 	} else {
 		statusCode = http.StatusOK
@@ -65,9 +65,9 @@ func GetLeagueByName(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var statusCode int
 	params := mux.Vars(r)
-	summoner, err := svc_v1.GetLeagueByName(params["name"])
-	if err != nil {
-		utils.LogOperation.Print(err)
+	summoner, errGetLeagueByName := svc_v1.GetLeagueByName(params["name"])
+	if errGetLeagueByName != nil {
+		utils.LogOperation.Print(errGetLeagueByName)
 		statusCode = http.StatusInternalServerError
 	} else {
 		statusCode = http.StatusOK

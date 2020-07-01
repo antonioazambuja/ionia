@@ -80,7 +80,9 @@ func GetCacheSummoner(summonerName string, serviceID string) (Summoner, error) {
 func NewSummoner(summonerHTTPResponse *http.Response) *Summoner {
 	var summonerDTO SummonerDTO
 	summoner := new(Summoner)
-	json.NewDecoder(summonerHTTPResponse.Body).Decode(&summonerDTO)
+	if errDecodeSummonerResponse := json.NewDecoder(summonerHTTPResponse.Body).Decode(&summonerDTO); errDecodeSummonerResponse != nil {
+		utils.LogOperation.Println(errDecodeSummonerResponse)
+	}
 	summoner.SummonerName = summonerDTO.Name
 	summoner.SummonerLevel = summonerDTO.SummonerLevel
 	summoner.SummonerID = summonerDTO.ID
