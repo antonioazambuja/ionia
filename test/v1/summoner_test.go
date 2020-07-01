@@ -357,6 +357,6 @@ func TestInvalidSummonerName(test *testing.T) {
 }
 
 func TestMain(test *testing.M) {
-	utils.LogOperation.Println("TEstMain")
+	utils.LogOperation.Println("Executing tests of Ionia Riot API...")
 	os.Exit(test.Run())
 }
