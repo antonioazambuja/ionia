@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"net/http"
 
 	utils "github.com/antonioazambuja/ionia/utils"
 )
@@ -76,13 +75,7 @@ func GetCacheSummoner(summonerName string, serviceID string) (Summoner, error) {
 	return summoner, nil
 }
 
-// NewSummoner - initialize SummonerBuilder
-func NewSummoner(summonerHTTPResponse *http.Response) *Summoner {
-	var summonerDTO SummonerDTO
-	summoner := new(Summoner)
-	if errDecodeSummonerResponse := json.NewDecoder(summonerHTTPResponse.Body).Decode(&summonerDTO); errDecodeSummonerResponse != nil {
-		utils.LogOperation.Println(errDecodeSummonerResponse)
-	}
+func (summoner *Summoner) WithSummonerInfo(summonerDTO *SummonerDTO) {
 	summoner.SummonerName = summonerDTO.Name
 	summoner.SummonerLevel = summonerDTO.SummonerLevel
 	summoner.SummonerID = summonerDTO.ID
@@ -90,5 +83,33 @@ func NewSummoner(summonerHTTPResponse *http.Response) *Summoner {
 	summoner.Puuid = summonerDTO.Puuid
 	summoner.ProfileIconID = summonerDTO.ProfileIconID
 	summoner.RevisionDate = summonerDTO.RevisionDate
-	return summoner
+}
+
+// WithLeagueInfo - add LeagueEntryDTO data in summoner
+func (summoner *Summoner) WithLeagueInfo(leagueEntryDTO []LeagueEntryDTO) {
+	var leagueInfos []LeagueInfo
+	for _, info := range leagueEntryDTO {
+		leagueInfo := LeagueInfo{
+			LeagueID:      info.LeagueID,
+			QueueType:     info.QueueType,
+			Tier:          info.Tier,
+			Rank:          info.Rank,
+			LeaguePoints:  info.LeaguePoints,
+			Wins:          info.Wins,
+			Losses:        info.Losses,
+			Veteran:       info.Veteran,
+			Inactive:      info.Inactive,
+			FreshBlood:    info.FreshBlood,
+			HotStreak:     info.HotStreak,
+			MiniSeriesDTO: info.MiniSeriesDTO,
+		}
+		leagueInfos = append(leagueInfos, leagueInfo)
+	}
+	summoner.LeagueInfo = leagueInfos
+}
+
+// WithMatchesInfo - add MatchReferenceDto data in summoner
+func (summoner *Summoner) WithMatchesInfo(matchlistDto *MatchlistDto) {
+	summoner.MatchesInfo = matchlistDto.Matches
+	summoner.TotalGames = matchlistDto.TotalGames
 }
