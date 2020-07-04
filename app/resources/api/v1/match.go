@@ -1,12 +1,5 @@
 package v1
 
-import (
-	"encoding/json"
-	"net/http"
-
-	"github.com/antonioazambuja/ionia/utils"
-)
-
 // MatchlistDto - list of matches from summoner
 type MatchlistDto struct {
 	StartIndex int                 `json:"startIndex,omitempty"`
@@ -25,14 +18,4 @@ type MatchReferenceDto struct {
 	Queue      int    `json:"queue,omitempty"`
 	Lane       string `json:"lane,omitempty"`
 	Timestamp  int    `json:"timestamp,omitempty"`
-}
-
-// WithMatchesInfo - add MatchReferenceDto data in summoner
-func (summoner *Summoner) WithMatchesInfo(summonerHTTPMatchesResponse *http.Response) {
-	var matchlistDto MatchlistDto
-	if errDecodeMatchesResponse := json.NewDecoder(summonerHTTPMatchesResponse.Body).Decode(&matchlistDto); errDecodeMatchesResponse != nil {
-		utils.LogOperation.Println(errDecodeMatchesResponse)
-	}
-	summoner.MatchesInfo = matchlistDto.Matches
-	summoner.TotalGames = matchlistDto.TotalGames
 }
