@@ -1,6 +1,6 @@
 package v1
 
-// GetAvailableRegions - regions of API
+// GetAvailableRegions - regions of Riot API
 func GetAvailableRegions() (regions map[string]string) {
 	regions = map[string]string{
 		"BR1":  "https://br1.api.riotgames.com",
