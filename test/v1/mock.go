@@ -1,10 +1,7 @@
 package v1
 
 import (
-	"testing"
-
 	rsc_v1 "github.com/antonioazambuja/ionia/app/resources/api/v1"
-	"github.com/stretchr/testify/assert"
 )
 
 type mockRedisClient struct{}
@@ -37,26 +34,4 @@ func (riotAPIClient *mockRiotClient) GetSummonerMatchesByAccountID(accountID str
 	return &rsc_v1.MatchlistDto{
 		TotalGames: 190,
 	}, nil
-}
-
-func TestGetSummonerByName(test *testing.T) {
-	test.Parallel()
-	assert := assert.New(test)
-	summonerName := "IsBlackPanther"
-	riotAPIClient := mockRiotClient{}
-	summonerDTO, errSummonerDTO := riotAPIClient.GetSummonerByName(summonerName)
-	assert.Nil(errSummonerDTO)
-	leagueEntryDTO, errLeagueEntryDTO := riotAPIClient.GetSummonerLeaguesByID(summonerDTO.ID)
-	assert.Nil(errLeagueEntryDTO)
-	matchlistDTO, errMatchlistDTO := riotAPIClient.GetSummonerMatchesByAccountID(summonerDTO.AccountID)
-	assert.Nil(errMatchlistDTO)
-	summoner := new(rsc_v1.Summoner)
-	summoner.WithSummonerInfo(summonerDTO)
-	summoner.WithLeagueInfo(leagueEntryDTO)
-	summoner.WithMatchesInfo(matchlistDTO)
-	assert.Equal("IsBlackPanther", summoner.SummonerName)
-	redisClient := mockRedisClient{}
-	summonerCache, errSummonerCache := redisClient.SearchSummoner("IsBlackPanther", "info")
-	assert.Nil(errSummonerCache)
-	assert.Equal("IsBlackPanther", summonerCache.SummonerName)
 }
