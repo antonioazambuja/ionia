@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 
 	handler_v1 "github.com/antonioazambuja/ionia/app/handlers/api/v1"
 	rsc_v1 "github.com/antonioazambuja/ionia/app/resources/api/v1"
@@ -11,7 +12,8 @@ import (
 )
 
 func init() {
-	rsc_v1.CreateRedisConnection()
+	rsc_v1.RedisClientConnected = rsc_v1.NewRedisClient(os.Getenv("REDIS_URL"), os.Getenv("REDIS_PORT"))
+	rsc_v1.RedisClientConnected.Connect(os.Getenv("REDIS_PWD"))
 }
 
 func main() {
