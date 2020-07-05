@@ -1,6 +1,6 @@
 package v1
 
-// MiniSeriesDTO -
+// MiniSeriesDTO - mini series of response LeagueEntryDTO of Riot API
 type MiniSeriesDTO struct {
 	Losses   int    `json:"losses,omitempty"`
 	Progress string `json:"progress,omitempty"`
