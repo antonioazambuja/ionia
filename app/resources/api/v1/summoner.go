@@ -1,13 +1,5 @@
 package v1
 
-import (
-	"context"
-	"encoding/json"
-	"fmt"
-
-	utils "github.com/antonioazambuja/ionia/utils"
-)
-
 // SummonerDTO - summoner profile response
 type SummonerDTO struct {
 	ID            string `json:"id,omitempty"`
@@ -40,41 +32,7 @@ type SummonerBuilder struct {
 	ID          string
 }
 
-// NewCacheSummoner - initialize SummonerBuilder
-func NewCacheSummoner(summoner *Summoner, serviceID string) error {
-	summonerJSON, errParseStructToJSON := json.Marshal(summoner)
-	if errParseStructToJSON != nil {
-		utils.LogOperation.Println("Failed cached summoner of id service: " + serviceID)
-		utils.LogOperation.Println(errParseStructToJSON.Error())
-		return errParseStructToJSON
-	}
-	setSummonerRedisResult, errSetSummonerRedisResult := GetConn().Do(context.TODO(), "SET", fmt.Sprint(summoner.SummonerName+"_"+serviceID), summonerJSON).Result()
-	if errSetSummonerRedisResult != nil {
-		utils.LogOperation.Println("Failed cached summoner of id service: " + serviceID)
-		utils.LogOperation.Println(errSetSummonerRedisResult.Error())
-		return errSetSummonerRedisResult
-	}
-	utils.LogOperation.Printf("Succesfull cached summoner of id service: %s. Result Redis: %s\n", summoner.SummonerName+"_"+serviceID, setSummonerRedisResult)
-	return nil
-}
-
-// GetCacheSummoner - initialize SummonerBuilder
-func GetCacheSummoner(summonerName string, serviceID string) (Summoner, error) {
-	var summoner Summoner
-	summonerCacheRedis, errGetSummonerCacheRedis := GetConn().Get(context.TODO(), summonerName+"_"+serviceID).Result()
-	if errGetSummonerCacheRedis != nil {
-		utils.LogOperation.Print("Not found cache data in Redis - errGetSummonerCacheRedis. Result Redis: " + errGetSummonerCacheRedis.Error())
-		return Summoner{}, errGetSummonerCacheRedis
-	}
-	errParseJSONToStruct := json.Unmarshal([]byte(summonerCacheRedis), &summoner)
-	if errParseJSONToStruct != nil {
-		utils.LogOperation.Println("Error found cache data in Redis - errParseJSONToStruct. Result Redis: " + errParseJSONToStruct.Error())
-		return Summoner{}, errParseJSONToStruct
-	}
-	utils.LogOperation.Print("Found cache data in Redis")
-	return summoner, nil
-}
-
+// WithSummonerInfo - add SummonerDTO data in summoner
 func (summoner *Summoner) WithSummonerInfo(summonerDTO *SummonerDTO) {
 	summoner.SummonerName = summonerDTO.Name
 	summoner.SummonerLevel = summonerDTO.SummonerLevel
