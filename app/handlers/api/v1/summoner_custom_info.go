@@ -27,10 +27,10 @@ func GetMatchesCurrentYear(w http.ResponseWriter, r *http.Request) {
 			statusCode = http.StatusInternalServerError
 		} else {
 			statusCode = http.StatusOK
-		}
-		summoner = summonerRiotAPI
-		if errSaveCacheSummoner := svc_v1.SaveRedisSummoner(rsc_v1.RedisClientConnected, summoner, "matches_current_year"); errSaveCacheSummoner != nil {
-			utils.LogOperation.Print(errSaveCacheSummoner)
+			summoner = summonerRiotAPI
+			if errSaveCacheSummoner := svc_v1.SaveRedisSummoner(rsc_v1.RedisClientConnected, summoner, "matches_current_year"); errSaveCacheSummoner != nil {
+				utils.LogOperation.Print(errSaveCacheSummoner)
+			}
 		}
 	}
 	w.WriteHeader(statusCode)
