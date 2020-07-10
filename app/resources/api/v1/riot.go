@@ -3,7 +3,9 @@ package v1
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/antonioazambuja/ionia/utils"
@@ -103,6 +105,39 @@ func (riotAPIClient *RiotAPIClient) GetSummonerMatchesByAccountID(accountID stri
 	response, errResponse := client.Do(newRequest)
 	if errResponse != nil {
 		utils.LogOperation.Print("Error found - GetSummonerMatchesByAccountID: " + summonerV4 + " - " + errResponse.Error())
+		utils.LogOperation.Println(errResponse)
+		return nil, errResponse
+	} else if response.StatusCode != 200 {
+		utils.LogOperation.Print("Error found: Response of '/lol/match/v4/matchlists/by-account/' with invalid status code: '" + response.Status + "'")
+		return nil, errors.New("Error found - Invalid status code: '" + response.Status + "'")
+	}
+	matchlistDto := new(MatchlistDto)
+	if errDecodeSummonerResponse := json.NewDecoder(response.Body).Decode(&matchlistDto); errDecodeSummonerResponse != nil {
+		utils.LogOperation.Println(errDecodeSummonerResponse)
+	}
+	defer response.Body.Close()
+	return matchlistDto, nil
+}
+
+// GetMatchesCurrentYear - Get matches current year of summoner by account ID: "/lol/match/v4/matchlists/by-account/"
+func (riotAPIClient *RiotAPIClient) GetMatchesCurrentYear(accountID string) (*MatchlistDto, error) {
+	newRequest, errNewRequest := http.NewRequest("GET", riotAPIClient.ServerURL+matchesV4+accountID, nil)
+	if errNewRequest != nil {
+		utils.LogOperation.Println("Error found - GetMatchesCurrentYear: failed create new request")
+		utils.LogOperation.Println(errNewRequest.Error())
+		return nil, errNewRequest
+	}
+	newRequest.Header.Set(riotAPIClient.HeaderAPI, riotAPIClient.TokenAPI)
+	timestampBegginingYear, _ := time.Parse("01/02/2006 3:04:05 PM", fmt.Sprintf("01/01/%d 3:00:01 AM", time.Now().Year()))
+	queryRequest := newRequest.URL.Query()
+	queryRequest.Add("beginTime", strconv.FormatInt(timestampBegginingYear.UnixNano()/int64(time.Millisecond), 10))
+	newRequest.URL.RawQuery = queryRequest.Encode()
+	client := &http.Client{
+		Timeout: time.Duration(300 * time.Second),
+	}
+	response, errResponse := client.Do(newRequest)
+	if errResponse != nil {
+		utils.LogOperation.Print("Error found - GetMatchesCurrentYear: " + summonerV4 + " - " + errResponse.Error())
 		utils.LogOperation.Println(errResponse)
 		return nil, errResponse
 	} else if response.StatusCode != 200 {

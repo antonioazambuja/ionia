@@ -12,6 +12,7 @@ type RiotAPIClientFunc interface {
 	GetSummonerByName(summonerName string) (*rsc_v1.SummonerDTO, error)
 	GetSummonerLeaguesByID(summonerID string) ([]rsc_v1.LeagueEntryDTO, error)
 	GetSummonerMatchesByAccountID(accountID string) (*rsc_v1.MatchlistDto, error)
+	GetMatchesCurrentYear(accountID string) (*rsc_v1.MatchlistDto, error)
 }
 
 // SummonerV4 -
