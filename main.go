@@ -19,6 +19,8 @@ func init() {
 func main() {
 	router := mux.NewRouter()
 	router.HandleFunc("/v1/summoner/byname/{name}/matches/current/year", handler_v1.GetMatchesCurrentYear).Methods("GET")
+	router.HandleFunc("/v1/summoner/byname/{name}/matches/current/month", handler_v1.GetMatchesCurrentMonth).Methods("GET")
+	router.HandleFunc("/v1/summoner/byname/{name}/matches/current/day", handler_v1.GetMatchesCurrentDay).Methods("GET")
 	router.HandleFunc("/v1/summoner/byname/{name}", handler_v1.GetByName).Methods("GET")
 	router.HandleFunc("/v1/summoner/byname/{name}/matches", handler_v1.GetMatchesByName).Methods("GET")
 	router.HandleFunc("/v1/summoner/byname/{name}/league", handler_v1.GetLeagueByName).Methods("GET")

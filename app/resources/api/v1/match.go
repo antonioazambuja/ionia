@@ -2,20 +2,20 @@ package v1
 
 // MatchlistDto - list of matches from summoner
 type MatchlistDto struct {
-	StartIndex int                 `json:"startIndex,omitempty"`
-	TotalGames int                 `json:"totalGames,omitempty"`
-	EndIndex   int                 `json:"endIndex,omitempty"`
-	Matches    []MatchReferenceDto `json:"matches,omitempty"`
+	StartIndex int                 `json:"startIndex"`
+	TotalGames int                 `json:"totalGames"`
+	EndIndex   int                 `json:"endIndex"`
+	Matches    []MatchReferenceDto `json:"matches"`
 }
 
 // MatchReferenceDto - reference of the match
 type MatchReferenceDto struct {
-	GameID     int    `json:"gameId,omitempty"`
-	Role       string `json:"role,omitempty"`
-	Season     int    `json:"season,omitempty"`
-	PlatformID string `json:"platformId,omitempty"`
-	Champion   int    `json:"champion,omitempty"`
-	Queue      int    `json:"queue,omitempty"`
-	Lane       string `json:"lane,omitempty"`
-	Timestamp  int    `json:"timestamp,omitempty"`
+	GameID     int    `json:"gameId"`
+	Role       string `json:"role"`
+	Season     int    `json:"season"`
+	PlatformID string `json:"platformId"`
+	Champion   int    `json:"champion"`
+	Queue      int    `json:"queue"`
+	Lane       string `json:"lane"`
+	Timestamp  int    `json:"timestamp"`
 }
