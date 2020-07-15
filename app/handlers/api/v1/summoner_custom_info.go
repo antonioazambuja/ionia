@@ -71,7 +71,7 @@ func GetMatchesCurrentDay(w http.ResponseWriter, r *http.Request) {
 	statusCode := 200
 	summoner := new(rsc_v1.Summoner)
 	params := mux.Vars(r)
-	summoner, erroSummonerCached := svc_v1.GetRedisSummoner(rsc_v1.RedisClientConnected, params["name"], "matches_current_month")
+	summoner, erroSummonerCached := svc_v1.GetRedisSummoner(rsc_v1.RedisClientConnected, params["name"], "matches_current_day")
 	if erroSummonerCached != nil {
 		utils.LogOperation.Println(erroSummonerCached)
 		riotAPIClient := rsc_v1.NewRiotAPIClient(os.Getenv("ENDPOINT_REGION"), os.Getenv("API_KEY"), os.Getenv("HEADER_API_KEY"))
@@ -83,7 +83,7 @@ func GetMatchesCurrentDay(w http.ResponseWriter, r *http.Request) {
 			statusCode = http.StatusOK
 		}
 		summoner = summonerRiotAPI
-		if errSaveCacheSummoner := svc_v1.SaveRedisSummoner(rsc_v1.RedisClientConnected, summoner, "matches_current_month"); errSaveCacheSummoner != nil {
+		if errSaveCacheSummoner := svc_v1.SaveRedisSummoner(rsc_v1.RedisClientConnected, summoner, "matches_current_day"); errSaveCacheSummoner != nil {
 			utils.LogOperation.Print(errSaveCacheSummoner)
 		}
 	}
