@@ -155,18 +155,158 @@ type mockRiotClient struct{}
 
 func (riotAPIClient *mockRiotClient) GetSummonerByName(summonerName string) (*rsc_v1.SummonerDTO, error) {
 	return &rsc_v1.SummonerDTO{
-		AccountID: "",
-		Name:      "IsBlackPanther",
+		Name:          "IsBlackPanther",
+		AccountID:     "rsvKSJAKKjeis90",
+		ProfileIconID: 1,
+		Puuid:         "1",
+		RevisionDate:  12122345,
+		ID:            "90opdlsjdnJAKdso",
+		SummonerLevel: 1,
 	}, nil
 }
 
 func (riotAPIClient *mockRiotClient) GetSummonerLeaguesByID(summonerID string) ([]rsc_v1.LeagueEntryDTO, error) {
-	var leagueEntryDTO []rsc_v1.LeagueEntryDTO
-	return leagueEntryDTO, nil
+	return []rsc_v1.LeagueEntryDTO{
+		rsc_v1.LeagueEntryDTO{
+			LeagueID:      "b80abef5-2b55-4fc6-ba48-88331795255c",
+			QueueType:     "RANKED_SOLO_5x5",
+			Tier:          "PLATINUM",
+			Rank:          "II",
+			LeaguePoints:  12,
+			Wins:          17,
+			Losses:        24,
+			MiniSeriesDTO: rsc_v1.MiniSeriesDTO{},
+		},
+		rsc_v1.LeagueEntryDTO{
+			LeagueID:      "ca46fd88-db98-4719-a06b-239e44c1b9c2",
+			QueueType:     "RANKED_FLEX_SR",
+			Tier:          "GOLD",
+			Rank:          "II",
+			LeaguePoints:  13,
+			Wins:          23,
+			Losses:        11,
+			FreshBlood:    true,
+			MiniSeriesDTO: rsc_v1.MiniSeriesDTO{},
+		},
+	}, nil
 }
 
 func (riotAPIClient *mockRiotClient) GetSummonerMatchesByAccountID(accountID string) (*rsc_v1.MatchlistDto, error) {
 	return &rsc_v1.MatchlistDto{
-		TotalGames: 190,
+		StartIndex: 1,
+		EndIndex:   2,
+		TotalGames: 2,
+		Matches: []rsc_v1.MatchReferenceDto{
+			rsc_v1.MatchReferenceDto{
+				GameID:     1995205271,
+				Role:       "SOLO",
+				Season:     13,
+				PlatformID: "BR1",
+				Champion:   39,
+				Queue:      440,
+				Lane:       "MID",
+				Timestamp:  1594174353091,
+			},
+			rsc_v1.MatchReferenceDto{
+				GameID:     1995180379,
+				Role:       "SOLO",
+				Season:     13,
+				PlatformID: "BR1",
+				Champion:   39,
+				Queue:      440,
+				Lane:       "TOP",
+				Timestamp:  1594171998098,
+			},
+		},
+	}, nil
+}
+
+func (riotAPIClient *mockRiotClient) GetMatchesCurrentYear(accountID string) (*rsc_v1.MatchlistDto, error) {
+	return &rsc_v1.MatchlistDto{
+		StartIndex: 1,
+		EndIndex:   2,
+		TotalGames: 2,
+		Matches: []rsc_v1.MatchReferenceDto{
+			rsc_v1.MatchReferenceDto{
+				GameID:     1995205271,
+				Role:       "SOLO",
+				Season:     13,
+				PlatformID: "BR1",
+				Champion:   39,
+				Queue:      440,
+				Lane:       "MID",
+				Timestamp:  1594174353091,
+			},
+			rsc_v1.MatchReferenceDto{
+				GameID:     1995180379,
+				Role:       "SOLO",
+				Season:     13,
+				PlatformID: "BR1",
+				Champion:   39,
+				Queue:      440,
+				Lane:       "TOP",
+				Timestamp:  1594171998098,
+			},
+		},
+	}, nil
+}
+
+func (riotAPIClient *mockRiotClient) GetMatchesCurrentMonth(accountID string) (*rsc_v1.MatchlistDto, error) {
+	return &rsc_v1.MatchlistDto{
+		StartIndex: 1,
+		EndIndex:   2,
+		TotalGames: 2,
+		Matches: []rsc_v1.MatchReferenceDto{
+			rsc_v1.MatchReferenceDto{
+				GameID:     1995205271,
+				Role:       "SOLO",
+				Season:     13,
+				PlatformID: "BR1",
+				Champion:   39,
+				Queue:      440,
+				Lane:       "MID",
+				Timestamp:  1594174353091,
+			},
+			rsc_v1.MatchReferenceDto{
+				GameID:     1995180379,
+				Role:       "SOLO",
+				Season:     13,
+				PlatformID: "BR1",
+				Champion:   39,
+				Queue:      440,
+				Lane:       "TOP",
+				Timestamp:  1594171998098,
+			},
+		},
+	}, nil
+}
+
+func (riotAPIClient *mockRiotClient) GetMatchesCurrentDay(accountID string) (*rsc_v1.MatchlistDto, error) {
+	return &rsc_v1.MatchlistDto{
+		StartIndex: 1,
+		EndIndex:   2,
+		TotalGames: 2,
+		Matches: []rsc_v1.MatchReferenceDto{
+			rsc_v1.MatchReferenceDto{
+				GameID:     1995205271,
+				Role:       "SOLO",
+				Season:     13,
+				PlatformID: "BR1",
+				Champion:   39,
+				Queue:      440,
+				Lane:       "MID",
+				Timestamp:  1594174353091,
+			},
+			rsc_v1.MatchReferenceDto{
+				GameID:     1995180379,
+				Role:       "SOLO",
+				Season:     13,
+				PlatformID: "BR1",
+				Champion:   39,
+				Queue:      440,
+				Lane:       "TOP",
+				Timestamp:  1594171998098,
+			},
+		},
 	}, nil
 }

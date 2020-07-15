@@ -117,9 +117,8 @@ func TestRedisSaveErrorSummoner(test *testing.T) {
 	test.Parallel()
 	assert := assert.New(test)
 	redisClient := mockRedisClient{}
-	summonerCache, errSaveSummonerCache := redisClient.SearchSummoner("IsBlackPanther", "")
+	_, errSaveSummonerCache := redisClient.SearchSummoner("IsBlackPanther", "")
 	assert.NotNil(errSaveSummonerCache)
-	assert.Nil(summonerCache)
 }
 
 func TestRedisSaveFullSummoner(test *testing.T) {
