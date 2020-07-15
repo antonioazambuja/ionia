@@ -28,80 +28,80 @@ const MatchesV4 string = "/lol/match/v4/matchlists/by-account/"
 
 // GetByName - Service complex info summoner by name
 func GetByName(riotAPIClient RiotAPIClientFunc, summonerName string) (*rsc_v1.Summoner, error) {
+	summoner := rsc_v1.NewSummoner()
 	if errCheckSummonerName := CheckSummonerName(summonerName); errCheckSummonerName != nil {
 		utils.LogOperation.Println(errCheckSummonerName)
-		return nil, errCheckSummonerName
+		return &rsc_v1.Summoner{}, errCheckSummonerName
 	}
 	summonerDTO, errSummonerDTO := riotAPIClient.GetSummonerByName(summonerName)
 	if errSummonerDTO != nil {
-		return nil, errSummonerDTO
+		return &rsc_v1.Summoner{}, errSummonerDTO
 	}
+	summoner.WithSummonerInfo(summonerDTO)
 	leagueEntryDTO, errLeagueEntryDTO := riotAPIClient.GetSummonerLeaguesByID(summonerDTO.ID)
 	if errLeagueEntryDTO != nil {
-		return nil, errLeagueEntryDTO
+		return summoner, errLeagueEntryDTO
 	}
+	summoner.WithLeagueInfo(leagueEntryDTO)
 	matchlistDTO, errMatchlistDTO := riotAPIClient.GetSummonerMatchesByAccountID(summonerDTO.AccountID)
 	if errMatchlistDTO != nil {
-		return nil, errMatchlistDTO
+		return summoner, errMatchlistDTO
 	}
-	summoner := new(rsc_v1.Summoner)
-	summoner.WithSummonerInfo(summonerDTO)
-	summoner.WithLeagueInfo(leagueEntryDTO)
 	summoner.WithMatchesInfo(matchlistDTO)
 	return summoner, nil
 }
 
 // GetInfoByName - Service info summoner by name
 func GetInfoByName(riotAPIClient RiotAPIClientFunc, summonerName string) (*rsc_v1.Summoner, error) {
+	summoner := rsc_v1.NewSummoner()
 	if errCheckSummonerName := CheckSummonerName(summonerName); errCheckSummonerName != nil {
 		utils.LogOperation.Println(errCheckSummonerName)
-		return nil, errCheckSummonerName
+		return &rsc_v1.Summoner{}, errCheckSummonerName
 	}
 	summonerDTO, errSummonerDTO := riotAPIClient.GetSummonerByName(summonerName)
 	if errSummonerDTO != nil {
-		return nil, errSummonerDTO
+		return &rsc_v1.Summoner{}, errSummonerDTO
 	}
-	summoner := new(rsc_v1.Summoner)
 	summoner.WithSummonerInfo(summonerDTO)
 	return summoner, nil
 }
 
 // GetLeagueByName - Service league info summoner by name
 func GetLeagueByName(riotAPIClient RiotAPIClientFunc, summonerName string) (*rsc_v1.Summoner, error) {
+	summoner := rsc_v1.NewSummoner()
 	if errCheckSummonerName := CheckSummonerName(summonerName); errCheckSummonerName != nil {
 		utils.LogOperation.Println(errCheckSummonerName)
-		return nil, errCheckSummonerName
+		return &rsc_v1.Summoner{}, errCheckSummonerName
 	}
 	summonerDTO, errSummonerDTO := riotAPIClient.GetSummonerByName(summonerName)
 	if errSummonerDTO != nil {
-		return nil, errSummonerDTO
+		return &rsc_v1.Summoner{}, errSummonerDTO
 	}
+	summoner.WithSummonerInfo(summonerDTO)
 	leagueEntryDTO, errLeagueEntryDTO := riotAPIClient.GetSummonerLeaguesByID(summonerDTO.ID)
 	if errLeagueEntryDTO != nil {
-		return nil, errLeagueEntryDTO
+		return summoner, errLeagueEntryDTO
 	}
-	summoner := new(rsc_v1.Summoner)
-	summoner.WithSummonerInfo(summonerDTO)
 	summoner.WithLeagueInfo(leagueEntryDTO)
 	return summoner, nil
 }
 
 // GetMatchesByName - Service matches info summoner by name
 func GetMatchesByName(riotAPIClient RiotAPIClientFunc, summonerName string) (*rsc_v1.Summoner, error) {
+	summoner := rsc_v1.NewSummoner()
 	if errCheckSummonerName := CheckSummonerName(summonerName); errCheckSummonerName != nil {
 		utils.LogOperation.Println(errCheckSummonerName)
-		return nil, errCheckSummonerName
+		return &rsc_v1.Summoner{}, errCheckSummonerName
 	}
 	summonerDTO, errSummonerDTO := riotAPIClient.GetSummonerByName(summonerName)
 	if errSummonerDTO != nil {
-		return nil, errSummonerDTO
+		return &rsc_v1.Summoner{}, errSummonerDTO
 	}
+	summoner.WithSummonerInfo(summonerDTO)
 	matchlistDTO, errMatchlistDTO := riotAPIClient.GetSummonerMatchesByAccountID(summonerDTO.AccountID)
 	if errMatchlistDTO != nil {
 		return nil, errMatchlistDTO
 	}
-	summoner := new(rsc_v1.Summoner)
-	summoner.WithSummonerInfo(summonerDTO)
 	summoner.WithMatchesInfo(matchlistDTO)
 	return summoner, nil
 }
