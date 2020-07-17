@@ -15,7 +15,7 @@ type RedisClientFunc interface {
 func GetRedisSummoner(redisClient RedisClientFunc, summonerName, informationID string) (*rsc_v1.Summoner, error) {
 	summonerCacheRedis, errSummonerCacheRedis := redisClient.SearchSummoner(summonerName, informationID)
 	if errSummonerCacheRedis != nil {
-		return &rsc_v1.Summoner{}, errSummonerCacheRedis
+		return rsc_v1.NewSummoner(), errSummonerCacheRedis
 	}
 	return summonerCacheRedis, nil
 }

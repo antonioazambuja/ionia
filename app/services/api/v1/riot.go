@@ -31,11 +31,11 @@ func GetByName(riotAPIClient RiotAPIClientFunc, summonerName string) (*rsc_v1.Su
 	summoner := rsc_v1.NewSummoner()
 	if errCheckSummonerName := CheckSummonerName(summonerName); errCheckSummonerName != nil {
 		utils.LogOperation.Println(errCheckSummonerName)
-		return &rsc_v1.Summoner{}, errCheckSummonerName
+		return summoner, errCheckSummonerName
 	}
 	summonerDTO, errSummonerDTO := riotAPIClient.GetSummonerByName(summonerName)
 	if errSummonerDTO != nil {
-		return &rsc_v1.Summoner{}, errSummonerDTO
+		return summoner, errSummonerDTO
 	}
 	summoner.WithSummonerInfo(summonerDTO)
 	leagueEntryDTO, errLeagueEntryDTO := riotAPIClient.GetSummonerLeaguesByID(summonerDTO.ID)
@@ -56,11 +56,11 @@ func GetInfoByName(riotAPIClient RiotAPIClientFunc, summonerName string) (*rsc_v
 	summoner := rsc_v1.NewSummoner()
 	if errCheckSummonerName := CheckSummonerName(summonerName); errCheckSummonerName != nil {
 		utils.LogOperation.Println(errCheckSummonerName)
-		return &rsc_v1.Summoner{}, errCheckSummonerName
+		return summoner, errCheckSummonerName
 	}
 	summonerDTO, errSummonerDTO := riotAPIClient.GetSummonerByName(summonerName)
 	if errSummonerDTO != nil {
-		return &rsc_v1.Summoner{}, errSummonerDTO
+		return summoner, errSummonerDTO
 	}
 	summoner.WithSummonerInfo(summonerDTO)
 	return summoner, nil
@@ -71,11 +71,11 @@ func GetLeagueByName(riotAPIClient RiotAPIClientFunc, summonerName string) (*rsc
 	summoner := rsc_v1.NewSummoner()
 	if errCheckSummonerName := CheckSummonerName(summonerName); errCheckSummonerName != nil {
 		utils.LogOperation.Println(errCheckSummonerName)
-		return &rsc_v1.Summoner{}, errCheckSummonerName
+		return summoner, errCheckSummonerName
 	}
 	summonerDTO, errSummonerDTO := riotAPIClient.GetSummonerByName(summonerName)
 	if errSummonerDTO != nil {
-		return &rsc_v1.Summoner{}, errSummonerDTO
+		return summoner, errSummonerDTO
 	}
 	summoner.WithSummonerInfo(summonerDTO)
 	leagueEntryDTO, errLeagueEntryDTO := riotAPIClient.GetSummonerLeaguesByID(summonerDTO.ID)
@@ -91,16 +91,16 @@ func GetMatchesByName(riotAPIClient RiotAPIClientFunc, summonerName string) (*rs
 	summoner := rsc_v1.NewSummoner()
 	if errCheckSummonerName := CheckSummonerName(summonerName); errCheckSummonerName != nil {
 		utils.LogOperation.Println(errCheckSummonerName)
-		return &rsc_v1.Summoner{}, errCheckSummonerName
+		return summoner, errCheckSummonerName
 	}
 	summonerDTO, errSummonerDTO := riotAPIClient.GetSummonerByName(summonerName)
 	if errSummonerDTO != nil {
-		return &rsc_v1.Summoner{}, errSummonerDTO
+		return summoner, errSummonerDTO
 	}
 	summoner.WithSummonerInfo(summonerDTO)
 	matchlistDTO, errMatchlistDTO := riotAPIClient.GetSummonerMatchesByAccountID(summonerDTO.AccountID)
 	if errMatchlistDTO != nil {
-		return nil, errMatchlistDTO
+		return summoner, errMatchlistDTO
 	}
 	summoner.WithMatchesInfo(matchlistDTO)
 	return summoner, nil
@@ -122,11 +122,11 @@ func GetMatchesCurrentYear(riotAPIClient RiotAPIClientFunc, summonerName string)
 	summoner := rsc_v1.NewSummoner()
 	if errCheckSummonerName := CheckSummonerName(summonerName); errCheckSummonerName != nil {
 		utils.LogOperation.Println(errCheckSummonerName)
-		return &rsc_v1.Summoner{}, errCheckSummonerName
+		return summoner, errCheckSummonerName
 	}
 	summonerDTO, errSummonerDTO := riotAPIClient.GetSummonerByName(summonerName)
 	if errSummonerDTO != nil {
-		return &rsc_v1.Summoner{}, errSummonerDTO
+		return summoner, errSummonerDTO
 	}
 	summoner.WithSummonerInfo(summonerDTO)
 	matchlistDTO, errMatchlistDTO := riotAPIClient.GetMatchesCurrentYear(summonerDTO.AccountID)
@@ -142,11 +142,11 @@ func GetMatchesCurrentMonth(riotAPIClient RiotAPIClientFunc, summonerName string
 	summoner := rsc_v1.NewSummoner()
 	if errCheckSummonerName := CheckSummonerName(summonerName); errCheckSummonerName != nil {
 		utils.LogOperation.Println(errCheckSummonerName)
-		return &rsc_v1.Summoner{}, errCheckSummonerName
+		return summoner, errCheckSummonerName
 	}
 	summonerDTO, errSummonerDTO := riotAPIClient.GetSummonerByName(summonerName)
 	if errSummonerDTO != nil {
-		return &rsc_v1.Summoner{}, errSummonerDTO
+		return summoner, errSummonerDTO
 	}
 	summoner.WithSummonerInfo(summonerDTO)
 	matchlistDTO, errMatchlistDTO := riotAPIClient.GetMatchesCurrentMonth(summonerDTO.AccountID)
@@ -162,11 +162,11 @@ func GetMatchesCurrentDay(riotAPIClient RiotAPIClientFunc, summonerName string) 
 	summoner := rsc_v1.NewSummoner()
 	if errCheckSummonerName := CheckSummonerName(summonerName); errCheckSummonerName != nil {
 		utils.LogOperation.Println(errCheckSummonerName)
-		return &rsc_v1.Summoner{}, errCheckSummonerName
+		return summoner, errCheckSummonerName
 	}
 	summonerDTO, errSummonerDTO := riotAPIClient.GetSummonerByName(summonerName)
 	if errSummonerDTO != nil {
-		return &rsc_v1.Summoner{}, errSummonerDTO
+		return summoner, errSummonerDTO
 	}
 	summoner.WithSummonerInfo(summonerDTO)
 	matchlistDTO, errMatchlistDTO := riotAPIClient.GetMatchesCurrentDay(summonerDTO.AccountID)
